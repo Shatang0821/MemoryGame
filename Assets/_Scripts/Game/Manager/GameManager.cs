@@ -16,7 +16,6 @@ public enum GamePlayState
     Prepare,        //準備段階
     SelectCards,    //プレイヤーがカードを選択
     CheckCards,     //カードをチェックする状態
-    ComparePoints,  //ポイント比較状態
     End             //終了
 }
 public class GameManager : PersistentUnitySingleton<GameManager>
@@ -26,10 +25,9 @@ public class GameManager : PersistentUnitySingleton<GameManager>
     [SerializeField]
     private GamePlayState _currentGamePlayState;
 
-
-
-    private readonly string TitleUI = "TitleUI";
-    private readonly string GameUI = "GameUI";
+    private readonly string _titleUI = "TitleUI";
+    private readonly string _gameUI = "GameUI";
+    private readonly string _endUI = "EndUI";
     
     protected override void Awake()
     {
@@ -54,13 +52,8 @@ public class GameManager : PersistentUnitySingleton<GameManager>
         EventCenter.Unsubscribe(StateKey.OnGameStateChange,SetGameplayState);
     }
 
-    private void Update()
-    {
-        
-    }
-
     /// <summary>
-    /// 
+    /// シーン状態(UI状態)の設定
     /// </summary>
     /// <param name="newState"></param>
     public void SetSceneState(object obj)
@@ -77,6 +70,10 @@ public class GameManager : PersistentUnitySingleton<GameManager>
         }
     }
     
+    /// <summary>
+    /// ゲーム状態の設定
+    /// </summary>
+    /// <param name="obj"></param>
     public void SetGameplayState(object obj)
     {
         if (obj is GamePlayState newState)
@@ -100,12 +97,13 @@ public class GameManager : PersistentUnitySingleton<GameManager>
         switch (_currentSceneState)
         {
             case SceneState.Title:
-                EventCenter.TriggerEvent(UIEventKey.OnChangeUIPrefab,TitleUI);
+                EventCenter.TriggerEvent(UIEventKey.OnChangeUIPrefab,_titleUI);
                 break;
             case SceneState.Gameplay:
-                EventCenter.TriggerEvent(UIEventKey.OnChangeUIPrefab,GameUI);
+                EventCenter.TriggerEvent(UIEventKey.OnChangeUIPrefab,_gameUI);
                 break;
             case SceneState.GameOver:
+                EventCenter.TriggerEvent(UIEventKey.OnChangeUIPrefab,_endUI);
                 break;
         }
     }
@@ -123,16 +121,16 @@ public class GameManager : PersistentUnitySingleton<GameManager>
                 EventCenter.TriggerEvent(StateKey.OnGameStatePrepare);
                 break;
             case GamePlayState.SelectCards:
+                Debug.Log("SelectCardsInManager");
                 EventCenter.TriggerEvent(StateKey.OnGameStateSelectCards);
                 break;
             case GamePlayState.CheckCards:
+                Debug.Log("CheckCardsInManager");
                 EventCenter.TriggerEvent(StateKey.OnGameStateCheckCards);
                 break;
-            case GamePlayState.ComparePoints:
-                EventCenter.TriggerEvent(StateKey.OnGameStateComparePoints);
-                break;
             case GamePlayState.End:
-                EventCenter.TriggerEvent(StateKey.OnGameStateCompareEnd);
+                Debug.Log("EndInManager");
+                EventCenter.TriggerEvent(StateKey.OnGameStateEnd);
                 break;
         }
     }

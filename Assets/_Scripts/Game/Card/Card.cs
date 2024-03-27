@@ -23,6 +23,12 @@ public class Card
         BackSprite = Image.sprite;
     }
 
+    public void Reset()
+    {
+        SetCardImageFront(false);
+        CardPrefab.SetActive(false);
+    }
+
     public void SetCardImageFront(bool b)
     {
         if (b)

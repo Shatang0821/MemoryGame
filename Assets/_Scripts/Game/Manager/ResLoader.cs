@@ -17,6 +17,9 @@ public class ResLoader : UnitySingleton<ResLoader>
         Debug.Log("ResLoader");
     }
 
+    /// <summary>
+    /// 画像の初期ロード
+    /// </summary>
     public void Init()
     {
         CardSprites = new List<Sprite>();
@@ -38,6 +41,6 @@ public class ResLoader : UnitySingleton<ResLoader>
             CardSprites.Add(ResManager.Instance.GetAssetCache<Sprite>("Sprite/Winter_" + (i+1)));
         }
         BackSprite = ResManager.Instance.GetAssetCache<Sprite>("Sprite/Back");
-        Debug.Log(CardSprites.Count);
+        //Debug.Log(CardSprites.Count);
     }
 }

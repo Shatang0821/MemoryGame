@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using FrameWork.Utils;
 using UnityEngine;
 
 namespace FrameWork.EventCenter
@@ -131,7 +132,15 @@ namespace FrameWork.EventCenter
         {
             if (eventNoParamDictionary.TryGetValue(eventKey, out var thisEvent))
             {
-                thisEvent?.Invoke();
+                if (thisEvent != null)
+                {
+                    thisEvent.Invoke();
+                }
+                else
+                {
+                    DebugLogger.LogWarning(eventKey.ToString() + "No Action");
+                }
+                
             }
         }
 

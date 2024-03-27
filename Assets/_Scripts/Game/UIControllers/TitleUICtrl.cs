@@ -19,7 +19,7 @@ public class TitleUICtrl : UICtrl
 
     private void OnEnable()
     {
-        AddButtonListener(_startButton, SetGameState);
+        AddButtonListener(_startButton, OnStartButton);
     }
 
     private void OnDisable()
@@ -32,7 +32,7 @@ public class TitleUICtrl : UICtrl
     /// シーン状態をGameplay
     /// ゲーム状態をPrepare
     /// </summary>
-    private void SetGameState()
+    private void OnStartButton()
     {
         EventCenter.TriggerEvent(StateKey.OnSceneStateChange, SceneState.Gameplay);
         EventCenter.TriggerEvent(StateKey.OnGameStateChange, GamePlayState.Prepare);

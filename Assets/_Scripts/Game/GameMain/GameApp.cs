@@ -30,6 +30,7 @@ public class GameApp : UnitySingleton<GameApp>
     {
         UIManager.Instance.ShowUI("TitleUI");
         UIManager.Instance.ShowUI("GameUI");
+        UIManager.Instance.ShowUI("EndUI");
         DebugLogger.Log("UI初期化終了");
     }
 

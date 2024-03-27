@@ -4,6 +4,7 @@ using System.Collections;
 using UnityEngine.UI;
 using FrameWork.Utils;
 using System.Collections.Generic;
+using FrameWork.EventCenter;
 using UnityEngine.EventSystems;
 
 
@@ -11,30 +12,51 @@ public class GameUICtrl : UICtrl
 {
 	private string _inPlay = "InPlay";
 	private string _inPrepare = "InPrepare";
-
+	private string _endButton = "EndButton";
+	private string _startButton = "StartButton";
 	private GameBoard _gameBoard;
+	private Deck _deck;
 	
 	private Camera _mainCamera;
+	
 	public override void Awake() {
 
 		base.Awake();
-		_gameBoard = new GameBoard(View["CardContainer"]);
+		_deck = new Deck(View["CardContainer"]);
+		
+		_gameBoard = new GameBoard(_deck,View["CardContainer"]);
+		_gameBoard.Subscribe();
+		
 		_mainCamera = Camera.main;
 		this.gameObject.SetActive(false);
 	}
 
 	private void OnEnable()
 	{
+		AddButtonListener(_endButton,OnEndButton);
+		AddButtonListener(_startButton,OnEndButton);
+		
 		SetViewActive(_inPrepare,true);
-		_gameBoard?.Subscribe();
+		
+		_gameBoard?.OnEnable();
+		_deck?.OnEnable();
 	}
 
 	private void OnDisable()
 	{
+		RemoveButtonListener(_endButton);
+		RemoveButtonListener(_startButton);
+		
 		SetViewActive(_inPlay,false);
 		SetViewActive(_inPrepare,false);
 		
-		_gameBoard?.Unsubscribe();
+		_gameBoard?.OnDisable();
+		_deck?.OnDisable();
+	}
+
+	private void OnDestroy()
+	{
+		_gameBoard.Unsubscribe();
 	}
 
 	private void Update()
@@ -53,8 +75,16 @@ public class GameUICtrl : UICtrl
 		}
 	}
 
-	public void Start()
+	private void OnEndButton()
 	{
+		EventCenter.TriggerEvent(StateKey.OnSceneStateChange, SceneState.GameOver);
+		EventCenter.TriggerEvent(StateKey.OnGameStateChange, GamePlayState.End);
+	}
+
+	private void OnStartButton()
+	{
+		EventCenter.TriggerEvent(StateKey.OnGameStateChange, GamePlayState.SelectCards);
 		
 	}
+	
 }

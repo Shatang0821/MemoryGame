@@ -1,71 +1,112 @@
+using System.Collections.Generic;
 using FrameWork.EventCenter;
 using FrameWork.Utils;
 using UnityEngine;
 
 public class GameBoard
 {
-    private GameObject _cardContainer;
-    private Card[,] cards;
-    private Deck _deck;
-
-    private Vector2 _initPos = new Vector2(-500, 330);
-    private float _xOffset = 200;
-    private float _yOffset = 220;
-    private int _cardsPerRow = 6;
-    private int _totalCards;
-    public GameBoard(GameObject gameObject)
+    private GameObject _cardContainer;                          //カード親オブジェクト    
+    private Card[,] _cards;                                     //盤面順番のカード二次元配列
+    private Deck _deck;                                         //カード配列クラスのインスタンス
+    private Vector2 _initPos = new Vector2(-500, 330);      //カード生成時に使用する初期位置
+    private float _xOffset = 200;                               //カード間のx間隔
+    private float _yOffset = 220;                               //カード間のy間隔
+    private int _cardsPerRow = 6;                               //一行のカード数
+    private int _totalCards;                                    //カード総数
+    public GameBoard(Deck deck,GameObject cardContainer)
     {
-        _cardContainer = gameObject;
-        cards = new Card[4, 6];
-        _deck = new Deck(_cardContainer);
+        _cards = new Card[4, 6];
+        this._deck = deck;
+        this._cardContainer = cardContainer;
         _totalCards = _deck.Cards.Count;
     }
 
-    public void Subscribe()
+    ~GameBoard()
     {
-        EventCenter.Subscribe(StateKey.OnGameStatePrepare, PlacePrepareCard);
+        DebugLogger.Log("GameBoard デストラクタ");
     }
 
+    /// <summary>
+    /// イベントの登録
+    /// </summary>
+    public void Subscribe()
+    {
+        EventCenter.Subscribe(StateKey.OnGameStatePrepare, PlacePrepareCard);  
+    }
+
+    /// <summary>
+    /// イベントの解除
+    /// </summary>
     public void Unsubscribe()
     {
         EventCenter.Unsubscribe(StateKey.OnGameStatePrepare, PlacePrepareCard);
     }
+    
+    public void OnEnable()
+    {
+        DebugLogger.Log("GameBoard OnEnable");
+    }
 
+    /// <summary>
+    /// リセット処理
+    /// </summary>
+    public void OnDisable()
+    { 
+        DebugLogger.Log("GameBoard OnDisable");
+        
+        // ゲームボード上のカードの状態をリセット
+        for (int row = 0; row < _cards.GetLength(0); row++)
+        {
+            for (int col = 0; col < _cards.GetLength(1); col++)
+            {
+                if (_cards[row, col] != null)
+                {
+                    // カードの表裏の状態や位置などをリセット
+                    _cards[row, col].Reset(); // CardクラスにResetCardStateメソッドを定義する
+                    _cards[row, col] = null;
+                }
+            }
+        }
+    }
+
+    #region カードを配る
+
+    /// <summary>
+    /// 準備段階のカードを配る
+    /// シャッフル前と表向きのカードを配る
+    /// </summary>
     private void PlacePrepareCard()
     {
         Debug.Log("PlaceCard");
 
         for (int i = 0; i < _totalCards; i++)
         {
-            HandOutCards(i,true);
-        }
-
-        for (int i = 0; i < 4; i++)
-        {
-            for (int j = 0; j < 6; j++)
-            {
-                Debug.Log(cards[i, j].Id);
-            }
+            HandOutCards(_deck.Cards, i, true);
         }
     }
 
-    
-
+    /// <summary>
+    /// ゲーム開始時のカードを配る
+    /// シャッフル後と裏向きのカードを配る
+    /// </summary>
     public void PlaceGameCard()
     {
         _deck.Shuffle();
         for (int i = 0; i < _totalCards; i++)
         {
-            HandOutCards(i,false);
+            HandOutCards(_deck.RandomCards, i, false);
         }
     }
+
+    #endregion
+    
     
     /// <summary>
     /// カードを配って表裏画像を指定する
     /// </summary>
     /// <param name="i">インデックス計算用</param>
     /// <param name="isFront">表面どうか</param>
-    private void HandOutCards(int i,bool isFront)
+    private void HandOutCards(List<Card> cards,int i,bool isFront)
     {
         // 現在の行内でのカードのインデックスを計算
         int cardIndexInRow = i % _cardsPerRow;
@@ -80,28 +121,31 @@ public class GameBoard
         // カードの新しい位置を設定
         Vector3 cardPosition = new Vector3(posX, posY, 0);
         //DebugLogger.Log($"Cards[{currentRow},{cardIndexInRow}]" + cardPosition + _deck.Cards[i].Id);
-        _deck.Cards[i].CardPrefab.transform.localPosition = cardPosition;
+        cards[i].CardPrefab.transform.localPosition = cardPosition;
 
-        _deck.Cards[i].CardPrefab.SetActive(true);
+        cards[i].CardPrefab.SetActive(true);
 
-        //シャフル前のカード状態を一度保存して、シールを張るときに必要となります
-        cards[currentRow, cardIndexInRow] = _deck.Cards[i];
+        //シャッフル前のカード状態を一度保存して、シールを張るときに必要となります
+        _cards[currentRow, cardIndexInRow] = cards[i];
         if (isFront)
         {
-            _deck.Cards[i].SetCardImageFront(isFront);
+            cards[i].SetCardImageFront(isFront);
         }
         else
         {
-            _deck.Cards[i].SetCardImageFront(isFront);
+            cards[i].SetCardImageFront(isFront);
         }
     }
 
+    /// <summary>
+    /// カードをめくる(仮)
+    /// </summary>
+    /// <param name="pos"></param>
     public void FlipCard(Vector3 pos)
     {
         var card = SelecteCard(pos);
         if (card == null)
         {
-            DebugLogger.Log("カード選択していないよ");
             return;
         }
         card.SetCardImageFront(true);
@@ -134,16 +178,15 @@ public class GameBoard
         int rowIndex = Mathf.FloorToInt((relativeY + halfCardHeight) / _yOffset);
 
         // 範囲チェック
-        if (columnIndex >= 0 && columnIndex < _cardsPerRow && rowIndex >= 0 && rowIndex < cards.GetLength(0))
+        if (columnIndex >= 0 && columnIndex < _cardsPerRow && rowIndex >= 0 && rowIndex < _cards.GetLength(0))
         {
             // クリックされた位置がカードの領域外であるかを確認
             if (IsCardRange(rowIndex, columnIndex, localPos))
             {
-                return cards[rowIndex, columnIndex];
+                return _cards[rowIndex, columnIndex];
             }
             else
             {
-                DebugLogger.Log($"Clicked on card at:  {columnIndex},{rowIndex}");
                 return null;
             }
 
@@ -151,7 +194,6 @@ public class GameBoard
         }
         else
         {
-            DebugLogger.Log("Clicked index out of bounds.");
             return null;
         }
     }

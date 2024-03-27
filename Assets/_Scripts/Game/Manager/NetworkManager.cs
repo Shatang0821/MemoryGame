@@ -11,7 +11,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 {
     // 唯一のインスタンスを保持する静的変数。
     public static NetworkManager Instance { get; private set; }
-
+    
     private PhotonView _photonView;
     private void Awake()
     {
@@ -41,6 +41,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public override void OnJoinedRoom()
     {
         Debug.Log("JoinRoom");
+        
         // 部屋に参加した際の追加のロジックをここに記述
         CheckPlayersInRoom();
     }
@@ -66,10 +67,44 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         if (PhotonNetwork.CurrentRoom.PlayerCount == 2)
         {
             Debug.Log("部屋のプレイヤー数が2人になりました。ゲームを開始します。");
-            EventCenter.TriggerEvent(StateKey.OnSceneStateChange, SceneState.Gameplay);
-            EventCenter.TriggerEvent(StateKey.OnGameStateChange, GamePlayState.Prepare);
+            //EventCenter.TriggerEvent(StateKey.OnSceneStateChange, SceneState.Gameplay);
+            //EventCenter.TriggerEvent(StateKey.OnGameStateChange, GamePlayState.Prepare);
         }
     }
-    
+
+    public void OnStartButton()
+    {
+        if (PhotonNetwork.IsMasterClient)
+        {
+            Debug.Log("OnstartButton");
+            _photonView.RPC("EnterGameScene",RpcTarget.All);
+        }
+    }
+
+    public void OnSelcteStartButton()
+    {
+        if (PhotonNetwork.IsMasterClient)
+        {
+            Debug.Log("OnSelcteStartButton");
+            _photonView.RPC("EnterSelecteScene",RpcTarget.All);
+        }
+        else
+        {
+            //_photonView.RPC("EnterSelecteScene",RpcTarget.All);
+        }
+    }
+
+    [PunRPC]
+    private void EnterGameScene()
+    {
+        EventCenter.TriggerEvent(StateKey.OnSceneStateChange, SceneState.Gameplay);
+        EventCenter.TriggerEvent(StateKey.OnGameStateChange, GamePlayState.Prepare);
+    }
+
+    [PunRPC]
+    private void EnterSelecteScene()
+    {
+        EventCenter.TriggerEvent(UIEventKey.OnStartSelect);
+    }
     
 }

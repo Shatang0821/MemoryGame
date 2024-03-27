@@ -34,8 +34,9 @@ public class TitleUICtrl : UICtrl
     /// </summary>
     private void OnStartButton()
     {
-        EventCenter.TriggerEvent(StateKey.OnSceneStateChange, SceneState.Gameplay);
-        EventCenter.TriggerEvent(StateKey.OnGameStateChange, GamePlayState.Prepare);
+        // EventCenter.TriggerEvent(StateKey.OnSceneStateChange, SceneState.Gameplay);
+        // EventCenter.TriggerEvent(StateKey.OnGameStateChange, GamePlayState.Prepare);
+        NetworkManager.Instance.OnStartButton();
     }
     
 }

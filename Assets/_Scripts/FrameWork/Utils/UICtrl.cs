@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 namespace FrameWork.Utils
 {
-    public class UICtrl : MonoBehaviourPunCallbacks
+    public class UICtrl : MonoBehaviour
     {
         private Dictionary<string, GameObject> _view = new Dictionary<string, GameObject>();
 

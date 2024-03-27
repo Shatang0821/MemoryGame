@@ -6,6 +6,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 public enum SceneState
 {
+    Join,
     Title,      //タイトル
     Gameplay,   //ゲーム中
     GameOver    //ゲーム終了
@@ -98,6 +99,8 @@ public class GameManager : PersistentUnitySingleton<GameManager>
     {
         switch (_currentSceneState)
         {
+            case SceneState.Join:
+                break;
             case SceneState.Title:
                 EventCenter.TriggerEvent(UIEventKey.OnChangeUIPrefab,_titleUI);
                 break;

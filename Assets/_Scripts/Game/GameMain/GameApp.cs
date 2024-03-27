@@ -26,7 +26,7 @@ public class GameApp : UnitySingleton<GameApp>
     /// <summary>
     /// 必要なUIプレハブの生成
     /// </summary>
-    private static void InitUI()
+    public void InitUI()
     {
         UIManager.Instance.ShowUI("TitleUI");
         UIManager.Instance.ShowUI("GameUI");

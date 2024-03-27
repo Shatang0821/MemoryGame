@@ -10,6 +10,8 @@ namespace FrameWork.EventCenter
     public static class UIEventKey
     {
         public static readonly EventKey OnChangeUIPrefab = new("OnChangeUIPrefab");
+
+        public static readonly EventKey OnStartSelect = new("OnStartSelect");
     }
 
     public static class StateKey

@@ -138,7 +138,7 @@ namespace FrameWork.EventCenter
                 }
                 else
                 {
-                    DebugLogger.LogWarning(eventKey.ToString() + "No Action");
+                    DebugLogger.LogWarning(eventKey + "No Action");
                 }
                 
             }

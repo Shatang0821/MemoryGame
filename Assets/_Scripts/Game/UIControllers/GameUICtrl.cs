@@ -31,6 +31,7 @@ public class GameUICtrl : UICtrl
 
 		_mainCamera = Camera.main;
 		this.gameObject.SetActive(false);
+		EventCenter.Subscribe(UIEventKey.OnStartSelect,OnGameStartSelect);
 	}
 
 	private void OnEnable()
@@ -59,6 +60,7 @@ public class GameUICtrl : UICtrl
 	private void OnDestroy()
 	{
 		_gameBoard.Unsubscribe();
+		EventCenter.Unsubscribe(UIEventKey.OnStartSelect,OnGameStartSelect);
 	}
 
 	private void Update()
@@ -80,22 +82,20 @@ public class GameUICtrl : UICtrl
 	
 	private void OnStartButton()
 	{
-		if (PhotonNetwork.IsMasterClient)
-		{
-			// マスタークライアントから全クライアントにRPCを呼び出す
-			photonView.RPC("StartGameOnAllClients", RpcTarget.All);
-		}
+		NetworkManager.Instance.OnSelcteStartButton();
 	}
 	
-	[PunRPC]
-	void StartGameOnAllClients()
+	void OnGameStartSelect()
 	{
-		Debug.Log("Error");
 		EventCenter.TriggerEvent(StateKey.OnGameStateChange, GamePlayState.SelectCards);
+		ShowSelectGameUI();
+	}
+
+	private void ShowSelectGameUI()
+	{
 		View["InPrepare"].SetActive(false);
 		View["InPlay"].SetActive(true);
     
 		_gameBoard.PlaceGameCard();
 	}
-	
 }

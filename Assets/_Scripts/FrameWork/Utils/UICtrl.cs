@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -69,6 +70,17 @@ namespace FrameWork.Utils
             
             bt.onClick.RemoveAllListeners();
         }
+
+        /// <summary>
+        /// オブジェクトのアクティブ状態設定
+        /// </summary>
+        /// <param name="viewName">オブジェクトの名前</param>
+        /// <param name="b">真偽</param>
+        protected void SetViewActive(string viewName,bool b)
+        {
+            _view[viewName].SetActive(b);
+        }
+        
         
     }
 }

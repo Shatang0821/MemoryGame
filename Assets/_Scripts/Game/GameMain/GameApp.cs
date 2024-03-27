@@ -1,3 +1,4 @@
+using System.Collections;
 using FrameWork.Factories;
 using FrameWork.Manager;
 using FrameWork.Utils;
@@ -16,20 +17,32 @@ public class GameApp : UnitySingleton<GameApp>
     /// </summary>
     private void EnterMainScene()
     {
-        //UIの初期化
-        UIManager.Instance.ShowUI("TitleUI");
-        UIManager.Instance.ShowUI("GameUI");
         //マネージャーの生成
         InitMgr();
+        //UIの初期化
+        InitUI();
     }
 
     /// <summary>
-    /// マネージャーのオブジェクトを生成
+    /// 必要なUIプレハブの生成
+    /// </summary>
+    private static void InitUI()
+    {
+        UIManager.Instance.ShowUI("TitleUI");
+        UIManager.Instance.ShowUI("GameUI");
+        DebugLogger.Log("UI初期化終了");
+    }
+
+    /// <summary>
+    /// 必要なマネージャーのオブジェクトを生成
     /// </summary>
     private void InitMgr()
     {
+        ManagerFactory.Instance.CreateManager<ResLoader>();
         ManagerFactory.Instance.CreateManager<GameManager>();
+        DebugLogger.Log("マネージャー初期化終了");
     }
+    
 
 
 }

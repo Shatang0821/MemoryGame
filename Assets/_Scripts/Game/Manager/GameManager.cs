@@ -1,7 +1,9 @@
+using System;
 using FrameWork.EventCenter;
 using FrameWork.Utils;
 using UnityEngine;
-
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 public enum SceneState
 {
     Title,      //タイトル
@@ -19,15 +21,24 @@ public enum GamePlayState
 }
 public class GameManager : PersistentUnitySingleton<GameManager>
 {
+    [SerializeField]
     private SceneState _currentSceneState;
+    [SerializeField]
     private GamePlayState _currentGamePlayState;
+
 
 
     private readonly string TitleUI = "TitleUI";
     private readonly string GameUI = "GameUI";
+    
     protected override void Awake()
     {
         base.Awake();
+        DebugLogger.Log("GameManager");
+    }
+
+    private void Start()
+    {
         SetSceneState(SceneState.Title);
     }
 
@@ -42,7 +53,12 @@ public class GameManager : PersistentUnitySingleton<GameManager>
         EventCenter.Unsubscribe(StateKey.OnSceneStateChange,SetSceneState);
         EventCenter.Unsubscribe(StateKey.OnGameStateChange,SetGameplayState);
     }
-    
+
+    private void Update()
+    {
+        
+    }
+
     /// <summary>
     /// 
     /// </summary>
@@ -59,7 +75,6 @@ public class GameManager : PersistentUnitySingleton<GameManager>
         {
             DebugLogger.LogWarning("引数の型が違う");
         }
-        
     }
     
     public void SetGameplayState(object obj)
@@ -104,17 +119,21 @@ public class GameManager : PersistentUnitySingleton<GameManager>
         switch (_currentGamePlayState)
         {
             case GamePlayState.Prepare:
+                Debug.Log("PrepareInManager");
+                EventCenter.TriggerEvent(StateKey.OnGameStatePrepare);
                 break;
             case GamePlayState.SelectCards:
+                EventCenter.TriggerEvent(StateKey.OnGameStateSelectCards);
                 break;
             case GamePlayState.CheckCards:
+                EventCenter.TriggerEvent(StateKey.OnGameStateCheckCards);
                 break;
             case GamePlayState.ComparePoints:
+                EventCenter.TriggerEvent(StateKey.OnGameStateComparePoints);
                 break;
             case GamePlayState.End:
+                EventCenter.TriggerEvent(StateKey.OnGameStateCompareEnd);
                 break;
         }
     }
-    
-    
 }

@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using FrameWork.Utils;
 using System.Collections.Generic;
 using FrameWork.EventCenter;
+using Unity.VisualScripting;
 
 
 public class TitleUICtrl : UICtrl
@@ -18,12 +19,23 @@ public class TitleUICtrl : UICtrl
 
     private void OnEnable()
     {
-        AddButtonListener(_startButton,
-            () => EventCenter.TriggerEvent(StateKey.OnSceneStateChange, SceneState.Gameplay));
+        AddButtonListener(_startButton, SetGameState);
     }
 
     private void OnDisable()
     {
         RemoveButtonListener(_startButton);
     }
+
+    /// <summary>
+    /// スタートボタンクリックしたら
+    /// シーン状態をGameplay
+    /// ゲーム状態をPrepare
+    /// </summary>
+    private void SetGameState()
+    {
+        EventCenter.TriggerEvent(StateKey.OnSceneStateChange, SceneState.Gameplay);
+        EventCenter.TriggerEvent(StateKey.OnGameStateChange, GamePlayState.Prepare);
+    }
+    
 }

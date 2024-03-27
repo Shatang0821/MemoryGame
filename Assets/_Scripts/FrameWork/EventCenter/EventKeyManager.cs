@@ -16,5 +16,11 @@ namespace FrameWork.EventCenter
     {
         public static readonly EventKey OnSceneStateChange = new("OnSceneStateChange");
         public static readonly EventKey OnGameStateChange = new("OnGameStateChange");
+
+        public static readonly EventKey OnGameStatePrepare = new("OnGameStatePrepare");
+        public static readonly EventKey OnGameStateSelectCards = new("OnGameStatePrepare");
+        public static readonly EventKey OnGameStateCheckCards = new("OnGameStatePrepare");
+        public static readonly EventKey OnGameStateComparePoints = new("OnGameStatePrepare");
+        public static readonly EventKey OnGameStateCompareEnd = new("OnGameStatePrepare");
     }
 }

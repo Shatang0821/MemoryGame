@@ -9,7 +9,7 @@ namespace FrameWork.Manager
     {
         public GameObject Canvas;
         
-        private Dictionary<string, GameObject> UiPrefabs;
+        private Dictionary<string, GameObject> UiPrefabs;   //Ctrlプレハブ
         private GameObject _currentUIPrefab;
         /// <summary>
         /// UIプレハブルート

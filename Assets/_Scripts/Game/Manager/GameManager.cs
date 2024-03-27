@@ -25,6 +25,8 @@ public class GameManager : PersistentUnitySingleton<GameManager>
     [SerializeField]
     private GamePlayState _currentGamePlayState;
 
+    public GamePlayState CurrentGamePlayState => _currentGamePlayState;
+
     private readonly string _titleUI = "TitleUI";
     private readonly string _gameUI = "GameUI";
     private readonly string _endUI = "EndUI";

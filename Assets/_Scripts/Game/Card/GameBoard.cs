@@ -7,18 +7,22 @@ public class GameBoard
 {
     private GameObject _cardContainer;                          //カード親オブジェクト    
     private Card[,] _cards;                                     //盤面順番のカード二次元配列
+    private List<Card> _selectedCards;                          //選択したカード
     private Deck _deck;                                         //カード配列クラスのインスタンス
     private Vector2 _initPos = new Vector2(-500, 330);      //カード生成時に使用する初期位置
-    private float _xOffset = 200;                               //カード間のx間隔
-    private float _yOffset = 220;                               //カード間のy間隔
-    private int _cardsPerRow = 6;                               //一行のカード数
+    private const float X_OFFSET = 200;                         //カード間のx間隔
+    private const float Y_OFFSET = 220;                         //カード間のy間隔
+    private const int CARDS_PER_ROW = 6;                        //一行のカード数
     private int _totalCards;                                    //カード総数
+    private int _remainCards;                                   //盤面に残っているカード
     public GameBoard(Deck deck,GameObject cardContainer)
     {
         _cards = new Card[4, 6];
         this._deck = deck;
         this._cardContainer = cardContainer;
+        _selectedCards = new List<Card>();
         _totalCards = _deck.Cards.Count;
+        _remainCards = _totalCards;
     }
 
     ~GameBoard()
@@ -67,6 +71,9 @@ public class GameBoard
                 }
             }
         }
+
+        _selectedCards.Clear();
+        _remainCards = _totalCards;
     }
 
     #region カードを配る
@@ -109,14 +116,14 @@ public class GameBoard
     private void HandOutCards(List<Card> cards,int i,bool isFront)
     {
         // 現在の行内でのカードのインデックスを計算
-        int cardIndexInRow = i % _cardsPerRow;
+        int cardIndexInRow = i % CARDS_PER_ROW;
 
         // 現在の行を計算
-        int currentRow = i / _cardsPerRow;
+        int currentRow = i / CARDS_PER_ROW;
 
         // カードのX軸とY軸の位置を計算
-        float posX = _initPos.x + cardIndexInRow * _xOffset;
-        float posY = _initPos.y - currentRow * _yOffset; // 上方向に進むためには減算する
+        float posX = _initPos.x + cardIndexInRow * X_OFFSET;
+        float posY = _initPos.y - currentRow * Y_OFFSET; // 上方向に進むためには減算する
 
         // カードの新しい位置を設定
         Vector3 cardPosition = new Vector3(posX, posY, 0);
@@ -144,13 +151,42 @@ public class GameBoard
     public void FlipCard(Vector3 pos)
     {
         var card = SelecteCard(pos);
-        if (card == null)
+        
+        if (card == null || card.IsFaceUp == true)
         {
             return;
         }
         card.SetCardImageFront(true);
+        _selectedCards.Add(card);
+        if (_selectedCards.Count >= 2)
+        {
+            EventCenter.TriggerEvent(StateKey.OnGameStateChange,GamePlayState.CheckCards);
+            CheckCard();
+            _selectedCards.Clear();
+        }
     }
 
+    private void CheckCard()
+    {
+        if (_selectedCards[0].Id == _selectedCards[1].Id)
+        {
+            _selectedCards[0].SetCardMatched();
+            _selectedCards[1].SetCardMatched();
+            _remainCards -= 2;
+            if (_remainCards <= 0)
+            {
+                EventCenter.TriggerEvent(StateKey.OnGameStateChange,GamePlayState.End);
+                return;
+            }
+        }
+        else
+        {
+            _selectedCards[0].SetCardImageFront(false);
+            _selectedCards[1].SetCardImageFront(false);
+        }
+        EventCenter.TriggerEvent(StateKey.OnGameStateChange,GamePlayState.SelectCards);  
+        
+    }
     #region SelecteCard
 
     /// <summary>
@@ -174,11 +210,11 @@ public class GameBoard
 
         //DebugLogger.Log($"{relativeX},{relativeY}");
         // クリックされた位置からカードのインデックスを計算
-        int columnIndex = Mathf.FloorToInt((relativeX + halfCardWidth) / _xOffset);
-        int rowIndex = Mathf.FloorToInt((relativeY + halfCardHeight) / _yOffset);
+        int columnIndex = Mathf.FloorToInt((relativeX + halfCardWidth) / X_OFFSET);
+        int rowIndex = Mathf.FloorToInt((relativeY + halfCardHeight) / Y_OFFSET);
 
         // 範囲チェック
-        if (columnIndex >= 0 && columnIndex < _cardsPerRow && rowIndex >= 0 && rowIndex < _cards.GetLength(0))
+        if (columnIndex >= 0 && columnIndex < CARDS_PER_ROW && rowIndex >= 0 && rowIndex < _cards.GetLength(0))
         {
             // クリックされた位置がカードの領域外であるかを確認
             if (IsCardRange(rowIndex, columnIndex, localPos))

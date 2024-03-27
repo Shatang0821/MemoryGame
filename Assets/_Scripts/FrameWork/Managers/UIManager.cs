@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using FrameWork.Utils;
+using Photon.Pun;
 
 namespace FrameWork.Manager
 {
@@ -73,6 +74,7 @@ namespace FrameWork.Manager
             
             // UIプレハブを生成する
             GameObject uiView = GameObject.Instantiate(uiPrefab);
+            
             uiView.name = name;
             UiPrefabs.Add(name,uiView);
             

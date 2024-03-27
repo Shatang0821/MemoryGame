@@ -20,14 +20,39 @@ public class Deck
     {
         _cards = new List<Card>();
         _randomCards = new List<Card>();
-        for (int i = 0; i < ResLoader.Instance.CardSprites.Count; i++)
+        for (int i = 0; i < ResLoader.Instance.SpringSprites.Count; i++)
         {
             var num = (i % 6) + 1;
             var cardPrefab = GameObject.Instantiate(ResLoader.Instance.CardPrefab, cardContainer.transform);
-            var card = new Card(num, ResLoader.Instance.CardSprites[i], cardPrefab);
+            var card = new Card(num,(int)CardImage.Spring, cardPrefab);
             //card.CardPrefab.SetActive(false);
-            Cards.Add(card);
+            _cards.Add(card);
         }
+        for (int i = 0; i < ResLoader.Instance.SummerSprites.Count; i++)
+        {
+            var num = (i % 6) + 1;
+            var cardPrefab = GameObject.Instantiate(ResLoader.Instance.CardPrefab, cardContainer.transform);
+            var card = new Card(num,(int)CardImage.Summer , cardPrefab);
+            //card.CardPrefab.SetActive(false);
+            _cards.Add(card);
+        }
+        for (int i = 0; i < ResLoader.Instance.AutumnSprites.Count; i++)
+        {
+            var num = (i % 6) + 1;
+            var cardPrefab = GameObject.Instantiate(ResLoader.Instance.CardPrefab, cardContainer.transform);
+            var card = new Card(num,(int)CardImage.Autumn , cardPrefab);
+            //card.CardPrefab.SetActive(false);
+            _cards.Add(card);
+        }
+        for (int i = 0; i < ResLoader.Instance.WinterSprites.Count; i++)
+        {
+            var num = (i % 6) + 1;
+            var cardPrefab = GameObject.Instantiate(ResLoader.Instance.CardPrefab, cardContainer.transform);
+            var card = new Card(num,(int)CardImage.Winter , cardPrefab);
+            //card.CardPrefab.SetActive(false);
+            _cards.Add(card);
+        }
+        Debug.Log(_cards.Count);
     }
 
     ~Deck()

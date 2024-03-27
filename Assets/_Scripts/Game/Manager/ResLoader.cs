@@ -6,9 +6,14 @@ using UnityEngine;
 
 public class ResLoader : UnitySingleton<ResLoader>
 {
-    public List<Sprite> CardSprites { get; private set; }
+    public List<Sprite> SpringSprites { get; private set; }
+    public List<Sprite> SummerSprites { get; private set; }
+    public List<Sprite> AutumnSprites { get; private set; }
+    public List<Sprite> WinterSprites { get; private set; }
     public Sprite BackSprite{ get; private set; }
     public GameObject CardPrefab{ get; private set; }
+    
+    public int SpriteCount { get; private set; }
 
     protected override void Awake()
     {
@@ -22,25 +27,35 @@ public class ResLoader : UnitySingleton<ResLoader>
     /// </summary>
     public void Init()
     {
-        CardSprites = new List<Sprite>();
+        SpringSprites = new List<Sprite>();
+        SummerSprites = new List<Sprite>();
+        AutumnSprites = new List<Sprite>();
+        WinterSprites = new List<Sprite>();
+        
         CardPrefab = ResManager.Instance.GetAssetCache<GameObject>("Prefabs/Card");
         for (int i = 0; i < 6; i++)
         {
-            CardSprites.Add(ResManager.Instance.GetAssetCache<Sprite>("Sprite/Spring_" + (i+1)));
+            SpringSprites.Add(ResManager.Instance.GetAssetCache<Sprite>("Sprite/Spring_" + (i+1)));
+            SpriteCount++;
         }
         for (int i = 0; i < 6; i++)
         {
-            CardSprites.Add(ResManager.Instance.GetAssetCache<Sprite>("Sprite/Summer_" + (i+1)));
+            SummerSprites.Add(ResManager.Instance.GetAssetCache<Sprite>("Sprite/Summer_" + (i+1)));
+            SpriteCount++;
         }
         for (int i = 0; i < 6; i++)
         {
-            CardSprites.Add(ResManager.Instance.GetAssetCache<Sprite>("Sprite/Autumn_" + (i+1)));
+            AutumnSprites.Add(ResManager.Instance.GetAssetCache<Sprite>("Sprite/Autumn_" + (i+1)));
+            SpriteCount++;
         }
         for (int i = 0; i < 6; i++)
         {
-            CardSprites.Add(ResManager.Instance.GetAssetCache<Sprite>("Sprite/Winter_" + (i+1)));
+            WinterSprites.Add(ResManager.Instance.GetAssetCache<Sprite>("Sprite/Winter_" + (i+1)));
+            SpriteCount++;
         }
+        
+        
         BackSprite = ResManager.Instance.GetAssetCache<Sprite>("Sprite/Back");
-        //Debug.Log(CardSprites.Count);
+        Debug.Log(SpriteCount);
     }
 }

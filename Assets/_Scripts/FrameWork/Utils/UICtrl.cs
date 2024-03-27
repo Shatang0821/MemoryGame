@@ -1,13 +1,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Photon.Pun;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
 namespace FrameWork.Utils
 {
-    public class UICtrl : MonoBehaviour
+    public class UICtrl : MonoBehaviourPunCallbacks
     {
         private Dictionary<string, GameObject> _view = new Dictionary<string, GameObject>();
 

@@ -101,7 +101,7 @@ public class GameBoard
         _deck.Shuffle();
         for (int i = 0; i < _totalCards; i++)
         {
-            HandOutCards(_deck.RandomCards, i, false);
+            //HandOutCards(_deck.RandomCards, i, false);
         }
     }
 

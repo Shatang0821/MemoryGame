@@ -11,8 +11,13 @@ namespace FrameWork.EventCenter
         OnGameStatePrepare,
         OnGameStateSelectCards,
         OnGameStateCheckCards,
-        OnGameStateEnd
+        OnGameStateEnd,
+        OnStartOnLine,
+        OnLeaveOnline,
+        
+        ShowStartButton,
     }
+    
     
 
     // public static class StateKey

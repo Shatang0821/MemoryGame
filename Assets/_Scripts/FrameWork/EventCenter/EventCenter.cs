@@ -13,7 +13,7 @@ namespace FrameWork.EventCenter
     {
         //デフォルトイベント
         private static Dictionary<EventKey, Delegate> m_EventDictionary = new Dictionary<EventKey, Delegate>();
-
+        
         // 戻り値のあるイベント
         // private static Dictionary<EventType, Delegate> eventWithReturnDictionary =
         //     new Dictionary<CallBack, Delegate>();

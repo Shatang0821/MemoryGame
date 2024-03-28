@@ -26,11 +26,29 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         DontDestroyOnLoad(gameObject);
 
         _photonView = GetComponent<PhotonView>();
+        EventCenter.AddListener(EventKey.OnStartOnLine,StartOnlinePlay);
+        EventCenter.AddListener(EventKey.OnLeaveOnline,LeaveOnlinePlay);
+        
     }
-    
-    private void Start()
+
+    private void OnDestroy()
+    {
+        EventCenter.RemoveListener(EventKey.OnStartOnLine,StartOnlinePlay);
+        EventCenter.RemoveListener(EventKey.OnLeaveOnline,LeaveOnlinePlay);
+    }
+
+    private void StartOnlinePlay()
     {
         PhotonNetwork.ConnectUsingSettings();
+    }
+
+    /// <summary>
+    /// 接続を切る
+    /// </summary>
+    private void LeaveOnlinePlay()
+    {
+        PhotonNetwork.LeaveRoom();
+        PhotonNetwork.Disconnect();
     }
 
     public override void OnConnectedToMaster()
@@ -67,11 +85,25 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         if (PhotonNetwork.CurrentRoom.PlayerCount == 2)
         {
             Debug.Log("部屋のプレイヤー数が2人になりました。ゲームを開始します。");
+            EventCenter.TriggerEvent(EventKey.ShowStartButton);
             //EventCenter.TriggerEvent(StateKey.OnSceneStateChange, SceneState.Gameplay);
             //EventCenter.TriggerEvent(StateKey.OnGameStateChange, GamePlayState.Prepare);
         }
     }
+    
+    public override void OnLeftRoom()
+    {
+        // 部屋から正常に出た場合に呼び出される
+        Debug.Log("部屋から退出しました。");
+    }
 
+    public override void OnDisconnected(DisconnectCause cause)
+    {
+        // ネットワークから切断された場合に呼び出される
+        Debug.Log("ネットワークから切断されました。原因：" + cause);
+    }
+
+    
     public void OnStartButton()
     {
         if (PhotonNetwork.IsMasterClient)
@@ -88,12 +120,25 @@ public class NetworkManager : MonoBehaviourPunCallbacks
             Debug.Log("OnSelcteStartButton");
             _photonView.RPC("EnterSelecteScene",RpcTarget.All);
         }
-        else
+    }
+
+    /// <summary>
+    /// シャッフルカードのデータを送る
+    /// </summary>
+    public void SendshuffleCard()
+    {
+        if (PhotonNetwork.IsMasterClient)
         {
-            //_photonView.RPC("EnterSelecteScene",RpcTarget.All);
+            Debug.Log("shuffle");
         }
     }
 
+    [PunRPC]
+    private void GetshuffleCard()
+    {
+        
+    }
+    
     [PunRPC]
     private void EnterGameScene()
     {

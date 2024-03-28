@@ -11,8 +11,8 @@ public enum CardImage
 }
 public class Card
 {
+    public int SelfId { get; private set; }
     public int Id { get; private set; }
-    
     public int CardImageNum { get; private set; }
     //public Sprite Sprite { get; private set; }
     public GameObject CardPrefab { get; private set; }
@@ -39,10 +39,14 @@ public class Card
         SetFrontSprite(cardImage);
         //デフォルトは裏面画像を使用する
         BackSprite = Image.sprite;
+        
+        this.SelfId = id + CardImageNum * 6;
+        Debug.Log(SelfId);
     }
 
     public void SetFrontSprite(int cardImage)
     {
+        //カード画像の設定
         switch (cardImage)
         {
             case (int)CardImage.Spring:
@@ -68,6 +72,10 @@ public class Card
         IsFaceUp = false;
     }
 
+    /// <summary>
+    /// カードの絵札向き
+    /// </summary>
+    /// <param name="b"></param>
     public void SetCardImageFront(bool b)
     {
         if (b)
@@ -82,6 +90,9 @@ public class Card
         }
     }
 
+    /// <summary>
+    /// カードが一致した処理
+    /// </summary>
     public void SetCardMatched()
     {
         IsMatched = true;

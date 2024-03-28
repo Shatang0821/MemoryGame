@@ -43,6 +43,8 @@ MonoBehaviour:
   - Test
   - EnterGameScene
   - EnterSelecteScene
+  - GetShufleCard
+  - GetshuffleCard
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 0

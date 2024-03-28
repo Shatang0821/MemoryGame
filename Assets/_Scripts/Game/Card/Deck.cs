@@ -6,26 +6,36 @@ using UnityEngine;
 public class Deck
 {
     private List<Card> _cards;
-    private List<Card> _randomCards;
+    private List<int> _randomCardsSelfId;
+    private Dictionary<int, Card> _cardTable;
+    
     public List<Card> Cards
     {
         get => _cards;
     }
 
-    public List<Card> RandomCards
+    public List<int> RandomCards
     {
-        get => _randomCards;
+        get => _randomCardsSelfId;
+    }
+
+    public Dictionary<int, Card> CardTable
+    {
+        get => _cardTable;
     }
     public Deck(GameObject cardContainer)
     {
+        //カードリスト初期化
         _cards = new List<Card>();
-        _randomCards = new List<Card>();
+        _cardTable = new Dictionary<int, Card>();
+        //カード絵札ごとに生成していく
         for (int i = 0; i < ResLoader.Instance.SpringSprites.Count; i++)
         {
             var num = (i % 6) + 1;
             var cardPrefab = GameObject.Instantiate(ResLoader.Instance.CardPrefab, cardContainer.transform);
             var card = new Card(num,(int)CardImage.Spring, cardPrefab);
-            //card.CardPrefab.SetActive(false);
+            
+            _cardTable.Add(card.SelfId,card);
             _cards.Add(card);
         }
         for (int i = 0; i < ResLoader.Instance.SummerSprites.Count; i++)
@@ -33,7 +43,8 @@ public class Deck
             var num = (i % 6) + 1;
             var cardPrefab = GameObject.Instantiate(ResLoader.Instance.CardPrefab, cardContainer.transform);
             var card = new Card(num,(int)CardImage.Summer , cardPrefab);
-            //card.CardPrefab.SetActive(false);
+            
+            _cardTable.Add(card.SelfId,card);
             _cards.Add(card);
         }
         for (int i = 0; i < ResLoader.Instance.AutumnSprites.Count; i++)
@@ -41,7 +52,8 @@ public class Deck
             var num = (i % 6) + 1;
             var cardPrefab = GameObject.Instantiate(ResLoader.Instance.CardPrefab, cardContainer.transform);
             var card = new Card(num,(int)CardImage.Autumn , cardPrefab);
-            //card.CardPrefab.SetActive(false);
+            
+            _cardTable.Add(card.SelfId,card);
             _cards.Add(card);
         }
         for (int i = 0; i < ResLoader.Instance.WinterSprites.Count; i++)
@@ -49,10 +61,11 @@ public class Deck
             var num = (i % 6) + 1;
             var cardPrefab = GameObject.Instantiate(ResLoader.Instance.CardPrefab, cardContainer.transform);
             var card = new Card(num,(int)CardImage.Winter , cardPrefab);
-            //card.CardPrefab.SetActive(false);
+            
+            _cardTable.Add(card.SelfId,card);
             _cards.Add(card);
         }
-        Debug.Log(_cards.Count);
+        
     }
 
     ~Deck()
@@ -67,7 +80,7 @@ public class Deck
 
     public void OnDisable()
     {
-        _randomCards.Clear();
+        _randomCardsSelfId.Clear();
     }
     
     /// <summary>
@@ -77,14 +90,25 @@ public class Deck
     {
         System.Random rng = new System.Random();
         int n = _cards.Count;
-        _randomCards = new List<Card>(_cards); // 新しいリストの作成で現在のカードの順番を保持
+        _randomCardsSelfId = new List<int>(); // SelfIdのリストを初期化
+
+        // シャッフル後のカードのSelfIdをリストに追加
+        foreach (var card in _cards)
+        {
+            _randomCardsSelfId.Add(card.SelfId);
+        }
+        
         while (n > 1)
         {
             n--;
             int k = rng.Next(n + 1);
-            Card value = _randomCards[k];
-            _randomCards[k] = _randomCards[n];
-            _randomCards[n] = value;
+            // カードをシャッフル
+            (_randomCardsSelfId[k], _randomCardsSelfId[n]) = (_randomCardsSelfId[n], _randomCardsSelfId[k]);
+        }
+
+        for (int i = 0; i < _randomCardsSelfId.Count; i++)
+        {
+            DebugLogger.Log(_randomCardsSelfId[i]);
         }
     }
 }

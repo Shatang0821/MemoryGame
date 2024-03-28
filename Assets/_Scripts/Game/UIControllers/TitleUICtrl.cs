@@ -5,26 +5,60 @@ using UnityEngine.UI;
 using FrameWork.Utils;
 using System.Collections.Generic;
 using FrameWork.EventCenter;
+using Photon.Pun;
+using Photon.Realtime;
 using Unity.VisualScripting;
 
 
 public class TitleUICtrl : UICtrl
 {
     private readonly string _startButton = "StartButton";
+    private readonly string _startOnlineButton = "OnLineStart";
     public override void Awake()
     {
         base.Awake();
         this.gameObject.SetActive(false);
+        EventCenter.AddListener(EventKey.ShowStartButton,ShowStartButton);
     }
 
     private void OnEnable()
     {
+        //ボタンにイベントを登録する
         AddButtonListener(_startButton, OnStartButton);
+        AddButtonListener("Room/Start",OnLineStartGame);
+        AddButtonListener(_startOnlineButton,OnStartOnlineButton);
+        AddButtonListener("Room/Leave",OnLeaveButton);
     }
 
     private void OnDisable()
     {
+        //ボタンにイベントを解除する
         RemoveButtonListener(_startButton);
+        RemoveButtonListener(_startOnlineButton);
+        RemoveButtonListener("Room/Start");
+        RemoveButtonListener("Room/Leave");
+        
+        SetMenuDisable();
+    }
+
+    /// <summary>
+    /// ルームパネルとそのボタンを非表示にする
+    /// </summary>
+    private void SetMenuDisable()
+    {
+        View["Room"].SetActive(false);
+        View["Room/Start"].SetActive(false);
+    }
+
+    private void OnDestroy()
+    {
+        EventCenter.RemoveListener(EventKey.ShowStartButton,ShowStartButton);
+    }
+
+    private void OnLeaveButton()
+    {
+        EventCenter.TriggerEvent(EventKey.OnLeaveOnline);
+        SetMenuDisable();
     }
 
     /// <summary>
@@ -34,9 +68,29 @@ public class TitleUICtrl : UICtrl
     /// </summary>
     private void OnStartButton()
     {
-        // EventCenter.TriggerEvent(StateKey.OnSceneStateChange, SceneState.Gameplay);
-        // EventCenter.TriggerEvent(StateKey.OnGameStateChange, GamePlayState.Prepare);
-        NetworkManager.Instance.OnStartButton();
+            EventCenter.TriggerEvent(EventKey.OnSceneStateChange, SceneState.Gameplay);
+            EventCenter.TriggerEvent(EventKey.OnGameStateChange, GamePlayState.Prepare);
+
     }
+
+    /// <summary>
+    /// オンラインスタート
+    /// </summary>
+    private void OnLineStartGame()
+    {
+        NetworkManager.Instance.OnStartButton(); 
+    }
+
+    private void OnStartOnlineButton()
+    {
+        EventCenter.TriggerEvent(EventKey.OnStartOnLine);
+        View["Room"].SetActive(true);
+    }
+    
+    private void ShowStartButton()
+    {
+        View["Room/Start"].SetActive(true);
+    }
+    
     
 }

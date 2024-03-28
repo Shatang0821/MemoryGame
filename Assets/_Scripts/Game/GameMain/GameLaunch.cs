@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using FrameWork.Factories;
 using FrameWork.Manager;
 using FrameWork.Utils;
+using Photon.Pun;
 using UnityEngine;
 
 public class GameLaunch : PersistentUnitySingleton<GameLaunch>

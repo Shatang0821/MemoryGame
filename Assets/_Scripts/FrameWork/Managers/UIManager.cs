@@ -10,13 +10,15 @@ namespace FrameWork.Manager
     public class UIManager : PersistentUnitySingleton<UIManager>
     {
         public GameObject Canvas;
-        
-        private Dictionary<string, GameObject> UiPrefabs;   //Ctrlプレハブ
+
+        private Dictionary<string, GameObject> UiPrefabs; //Ctrlプレハブ
         private GameObject _currentUIPrefab;
+
         /// <summary>
         /// UIプレハブルート
         /// </summary>
         private readonly string UIPREFABROOT = "GUI/UIPrefabs/";
+
         protected override void Awake()
         {
             base.Awake();
@@ -33,64 +35,58 @@ namespace FrameWork.Manager
 
         private void OnEnable()
         {
-            EventCenter.EventCenter.Subscribe(EventCenter.UIEventKey.OnChangeUIPrefab,ChangeUIPrefab);
+            EventCenter.EventCenter.AddListener<string>(EventCenter.EventKey.OnChangeUIPrefab, ChangeUIPrefab);
         }
 
         private void OnDisable()
         {
-            EventCenter.EventCenter.Unsubscribe(EventCenter.UIEventKey.OnChangeUIPrefab,ChangeUIPrefab);
+            EventCenter.EventCenter.RemoveListener<string>(EventCenter.EventKey.OnChangeUIPrefab, ChangeUIPrefab);
         }
 
         /// <summary>
         /// UIオブジェクトの切り替え操作
         /// </summary>
         /// <param name="name">stringをキーとして使用する</param>
-        private void ChangeUIPrefab(object obj)
+        private void ChangeUIPrefab(string uiName)
         {
-            if (obj is string uiName)
+            if (_currentUIPrefab != null)
             {
-                if (_currentUIPrefab != null)
-                {
-                    _currentUIPrefab.SetActive(false);
-                }
-                _currentUIPrefab = UiPrefabs[uiName];
-                _currentUIPrefab.SetActive(true);
+                _currentUIPrefab.SetActive(false);
             }
-            else
-            {
-                DebugLogger.LogWarning("型が違う");
-            }
-            
+
+            _currentUIPrefab = UiPrefabs[uiName];
+            _currentUIPrefab.SetActive(true);
         }
-    
+
         /// <summary>
         /// 指定UIを生成する
         /// </summary>
         /// <param name="name">UI名前</param>
         /// <returns></returns>
-        public UICtrl ShowUI(string name,Transform parent =null)
+        public UICtrl ShowUI(string name, Transform parent = null)
         {
             // UIプレハブを取得する
             GameObject uiPrefab = ResManager.Instance.GetAssetCache<GameObject>(UIPREFABROOT + name);
-            
+
             // UIプレハブを生成する
             GameObject uiView = GameObject.Instantiate(uiPrefab);
             uiView.name = name;
-            UiPrefabs.Add(name,uiView);
-            
+            UiPrefabs.Add(name, uiView);
+
             if (parent == null)
             {
                 parent = this.Canvas.transform;
             }
-            uiView.transform.SetParent(parent,false);
-            
-    
+
+            uiView.transform.SetParent(parent, false);
+
+
             Type type = Type.GetType(name + "Ctrl");
             UICtrl ctrl = (UICtrl)uiView.AddComponent(type);
-    
+
             return ctrl;
         }
-        
+
         /// <summary>
         /// 指定UIを削除
         /// </summary>
@@ -103,7 +99,7 @@ namespace FrameWork.Manager
                 GameObject.Destroy(view.gameObject);
             }
         }
-    
+
         /// <summary>
         /// すべてのUIを削除
         /// </summary>
@@ -116,14 +112,12 @@ namespace FrameWork.Manager
             {
                 children.Add(VARIABLE);
             }
-            
+
             //リスト内のUIを削除
             for (int i = 0; i < children.Count; i++)
             {
                 GameObject.Destroy(children[i].gameObject);
             }
         }
-        
     }
 }
-

@@ -31,7 +31,7 @@ public class GameUICtrl : UICtrl
 
 		_mainCamera = Camera.main;
 		this.gameObject.SetActive(false);
-		EventCenter.Subscribe(UIEventKey.OnStartSelect,OnGameStartSelect);
+		EventCenter.AddListener(EventKey.OnStartSelect,OnGameStartSelect);
 	}
 
 	private void OnEnable()
@@ -60,7 +60,7 @@ public class GameUICtrl : UICtrl
 	private void OnDestroy()
 	{
 		_gameBoard.Unsubscribe();
-		EventCenter.Unsubscribe(UIEventKey.OnStartSelect,OnGameStartSelect);
+		EventCenter.RemoveListener(EventKey.OnStartSelect,OnGameStartSelect);
 	}
 
 	private void Update()
@@ -76,8 +76,8 @@ public class GameUICtrl : UICtrl
 
 	private void OnEndButton()
 	{
-		EventCenter.TriggerEvent(StateKey.OnSceneStateChange, SceneState.GameOver);
-		EventCenter.TriggerEvent(StateKey.OnGameStateChange, GamePlayState.End);
+		EventCenter.TriggerEvent(EventKey.OnSceneStateChange, SceneState.GameOver);
+		EventCenter.TriggerEvent(EventKey.OnGameStateChange, GamePlayState.End);
 	}
 	
 	private void OnStartButton()
@@ -87,7 +87,7 @@ public class GameUICtrl : UICtrl
 	
 	void OnGameStartSelect()
 	{
-		EventCenter.TriggerEvent(StateKey.OnGameStateChange, GamePlayState.SelectCards);
+		EventCenter.TriggerEvent(EventKey.OnGameStateChange, GamePlayState.SelectCards);
 		ShowSelectGameUI();
 	}
 

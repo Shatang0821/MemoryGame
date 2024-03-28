@@ -97,14 +97,14 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     [PunRPC]
     private void EnterGameScene()
     {
-        EventCenter.TriggerEvent(StateKey.OnSceneStateChange, SceneState.Gameplay);
-        EventCenter.TriggerEvent(StateKey.OnGameStateChange, GamePlayState.Prepare);
+        EventCenter.TriggerEvent(EventKey.OnSceneStateChange, SceneState.Gameplay);
+        EventCenter.TriggerEvent(EventKey.OnGameStateChange, GamePlayState.Prepare);
     }
 
     [PunRPC]
     private void EnterSelecteScene()
     {
-        EventCenter.TriggerEvent(UIEventKey.OnStartSelect);
+        EventCenter.TriggerEvent(EventKey.OnStartSelect);
     }
     
 }

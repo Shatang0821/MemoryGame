@@ -30,13 +30,13 @@ public class EndUICtrl : UICtrl
 
 	private void Restart()
 	{
-		EventCenter.TriggerEvent(StateKey.OnSceneStateChange, SceneState.Gameplay);
-		EventCenter.TriggerEvent(StateKey.OnGameStateChange, GamePlayState.Prepare);
+		EventCenter.TriggerEvent(EventKey.OnSceneStateChange, SceneState.Gameplay);
+		EventCenter.TriggerEvent(EventKey.OnGameStateChange, GamePlayState.Prepare);
 	}
 
 	private void GotoTitle()
 	{
-		EventCenter.TriggerEvent(StateKey.OnSceneStateChange, SceneState.Title);
+		EventCenter.TriggerEvent(EventKey.OnSceneStateChange, SceneState.Title);
 	}
 
 }

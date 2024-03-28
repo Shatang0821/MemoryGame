@@ -35,7 +35,7 @@ public class GameBoard
     /// </summary>
     public void Subscribe()
     {
-        EventCenter.Subscribe(StateKey.OnGameStatePrepare, PlacePrepareCard);  
+        EventCenter.AddListener(EventKey.OnGameStatePrepare, PlacePrepareCard);  
     }
 
     /// <summary>
@@ -43,7 +43,7 @@ public class GameBoard
     /// </summary>
     public void Unsubscribe()
     {
-        EventCenter.Unsubscribe(StateKey.OnGameStatePrepare, PlacePrepareCard);
+        EventCenter.RemoveListener(EventKey.OnGameStatePrepare, PlacePrepareCard);
     }
     
     public void OnEnable()
@@ -160,7 +160,7 @@ public class GameBoard
         _selectedCards.Add(card);
         if (_selectedCards.Count >= 2)
         {
-            EventCenter.TriggerEvent(StateKey.OnGameStateChange,GamePlayState.CheckCards);
+            EventCenter.TriggerEvent(EventKey.OnGameStateChange,GamePlayState.CheckCards);
             CheckCard();
             _selectedCards.Clear();
         }
@@ -175,7 +175,7 @@ public class GameBoard
             _remainCards -= 2;
             if (_remainCards <= 0)
             {
-                EventCenter.TriggerEvent(StateKey.OnGameStateChange,GamePlayState.End);
+                EventCenter.TriggerEvent(EventKey.OnGameStateChange,GamePlayState.End);
                 return;
             }
         }
@@ -184,7 +184,7 @@ public class GameBoard
             _selectedCards[0].SetCardImageFront(false);
             _selectedCards[1].SetCardImageFront(false);
         }
-        EventCenter.TriggerEvent(StateKey.OnGameStateChange,GamePlayState.SelectCards);  
+        EventCenter.TriggerEvent(EventKey.OnGameStateChange,GamePlayState.SelectCards);  
         
     }
     #region SelecteCard

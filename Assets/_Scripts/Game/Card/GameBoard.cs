@@ -5,24 +5,26 @@ using UnityEngine;
 
 public class GameBoard
 {
+    private GameController _gameController;
     private GameObject _cardContainer;                          //カード親オブジェクト    
     private Card[,] _cards;                                     //盤面順番のカード二次元配列
-    private List<Card> _selectedCards;                          //選択したカード
+    
     private Deck _deck;                                         //カード配列クラスのインスタンス
     private Vector2 _initPos = new Vector2(-500, 330);      //カード生成時に使用する初期位置
+    
     private const float X_OFFSET = 200;                         //カード間のx間隔
     private const float Y_OFFSET = 220;                         //カード間のy間隔
     private const int CARDS_PER_ROW = 6;                        //一行のカード数
     private int _totalCards;                                    //カード総数
-    private int _remainCards;                                   //盤面に残っているカード
-    public GameBoard(Deck deck,GameObject cardContainer)
+
+    public GameBoard(GameController gameController,Deck deck,GameObject cardContainer)
     {
         _cards = new Card[4, 6];
+        
+        this._gameController = gameController;
         this._deck = deck;
         this._cardContainer = cardContainer;
-        _selectedCards = new List<Card>();
         _totalCards = _deck.Cards.Count;
-        _remainCards = _totalCards;
     }
 
     ~GameBoard()
@@ -71,9 +73,6 @@ public class GameBoard
                 }
             }
         }
-
-        _selectedCards.Clear();
-        _remainCards = _totalCards;
     }
 
     #region カードを配る
@@ -86,9 +85,11 @@ public class GameBoard
     {
         Debug.Log("PlaceCard");
 
-        for (int i = 0; i < _totalCards; i++)
+        // 準備段階でカードを配る
+        for (int i = 0; i < _deck.Cards.Count; i++)
         {
-            HandOutCards(_deck.Cards, i, true);
+            // カードを盤面に配置
+            PlaceCardOnBoard(_deck.Cards[i], i, true); // 第三引数はカードを表向きにするかどうか
         }
     }
 
@@ -98,95 +99,63 @@ public class GameBoard
     /// </summary>
     public void PlaceGameCard()
     {
-        _deck.Shuffle();
-        for (int i = 0; i < _totalCards; i++)
+       
+        
+        // シャッフルされたカードのIDを基にカードを配る
+        for (int i = 0; i < _deck.RandomCards.Count; i++)
         {
-            //HandOutCards(_deck.RandomCards, i, false);
+            // シャッフルされたSelfIdリストからカードIDを取得
+            int cardSelfId = _deck.RandomCards[i];
+        
+            // カードIDに基づいてカードオブジェクトを取得
+            if (_deck.CardTable.TryGetValue(cardSelfId, out Card card))
+            {
+                // カードを盤面に配置
+                int row = i / CARDS_PER_ROW;
+                int col = i % CARDS_PER_ROW;
+                PlaceCardOnBoard(card, i,false);
+            }
         }
     }
 
     #endregion
     
     
-    /// <summary>
-    /// カードを配って表裏画像を指定する
-    /// </summary>
-    /// <param name="i">インデックス計算用</param>
-    /// <param name="isFront">表面どうか</param>
-    private void HandOutCards(List<Card> cards,int i,bool isFront)
+    private void PlaceCardOnBoard(Card card, int index, bool isFront)
     {
-        // 現在の行内でのカードのインデックスを計算
-        int cardIndexInRow = i % CARDS_PER_ROW;
-
-        // 現在の行を計算
-        int currentRow = i / CARDS_PER_ROW;
-
-        // カードのX軸とY軸の位置を計算
-        float posX = _initPos.x + cardIndexInRow * X_OFFSET;
-        float posY = _initPos.y - currentRow * Y_OFFSET; // 上方向に進むためには減算する
-
-        // カードの新しい位置を設定
+        // カードの位置を計算（盤面上での行と列）
+        int row = index / CARDS_PER_ROW;
+        int col = index % CARDS_PER_ROW;
+        float posX = _initPos.x + col * X_OFFSET;
+        float posY = _initPos.y - row * Y_OFFSET;
         Vector3 cardPosition = new Vector3(posX, posY, 0);
-        //DebugLogger.Log($"Cards[{currentRow},{cardIndexInRow}]" + cardPosition + _deck.Cards[i].Id);
-        cards[i].CardPrefab.transform.localPosition = cardPosition;
-
-        cards[i].CardPrefab.SetActive(true);
-
-        //シャッフル前のカード状態を一度保存して、シールを張るときに必要となります
-        _cards[currentRow, cardIndexInRow] = cards[i];
-        if (isFront)
-        {
-            cards[i].SetCardImageFront(isFront);
-        }
-        else
-        {
-            cards[i].SetCardImageFront(isFront);
-        }
+    
+        // カードオブジェクトの位置を更新し、アクティブにする
+        card.CardPrefab.transform.localPosition = cardPosition;
+        card.CardPrefab.SetActive(true);
+    
+        // カードの表裏を設定
+        card.ToggleCardFace(isFront);
+    
+        // カード配列にカードを保存
+        _cards[row, col] = card;
     }
 
     /// <summary>
     /// カードをめくる(仮)
     /// </summary>
     /// <param name="pos"></param>
-    public void FlipCard(Vector3 pos)
+    public void SelecteCard(Vector3 pos)
     {
-        var card = SelecteCard(pos);
-        
+        var card = JudgeCard(pos);
         if (card == null || card.IsFaceUp == true)
         {
             return;
         }
-        card.SetCardImageFront(true);
-        _selectedCards.Add(card);
-        if (_selectedCards.Count >= 2)
-        {
-            EventCenter.TriggerEvent(EventKey.OnGameStateChange,GamePlayState.CheckCards);
-            CheckCard();
-            _selectedCards.Clear();
-        }
+        _gameController.SelectCard(card,_totalCards);
     }
 
-    private void CheckCard()
-    {
-        if (_selectedCards[0].Id == _selectedCards[1].Id)
-        {
-            _selectedCards[0].SetCardMatched();
-            _selectedCards[1].SetCardMatched();
-            _remainCards -= 2;
-            if (_remainCards <= 0)
-            {
-                EventCenter.TriggerEvent(EventKey.OnGameStateChange,GamePlayState.End);
-                return;
-            }
-        }
-        else
-        {
-            _selectedCards[0].SetCardImageFront(false);
-            _selectedCards[1].SetCardImageFront(false);
-        }
-        EventCenter.TriggerEvent(EventKey.OnGameStateChange,GamePlayState.SelectCards);  
-        
-    }
+    
     #region SelecteCard
 
     /// <summary>
@@ -194,7 +163,7 @@ public class GameBoard
     /// </summary>
     /// <param name="pos">クリック位置</param>
     /// <returns></returns>
-    private Card SelecteCard(Vector3 pos)
+    private Card JudgeCard(Vector3 pos)
     {
         // ローカル座標に変換
         Vector3 localPos = _cardContainer.transform.InverseTransformPoint(pos);

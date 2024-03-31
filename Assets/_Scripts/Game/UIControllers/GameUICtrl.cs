@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using FrameWork.Utils;
 using System.Collections.Generic;
 using FrameWork.EventCenter;
+using JetBrains.Annotations;
 using Photon.Pun;
 using UnityEngine.EventSystems;
 
@@ -17,16 +18,20 @@ public class GameUICtrl : UICtrl
 	private string _startButton = "InPrepare/StartButton";
 	private GameBoard _gameBoard;
 	private Deck _deck;
+	private GameController _gameController;
 	
 	private Camera _mainCamera;
 	
-	public override void Awake() {
-
+	public override void Awake() 
+	{
 		base.Awake();
-		this.gameObject.AddComponent<PhotonView>();
+		//GameControllerクラスの初期化
+		_gameController = new GameController();
+		//Deckクラスの初期化
 		_deck = new Deck(View["CardContainer"]);
 		
-		_gameBoard = new GameBoard(_deck,View["CardContainer"]);
+		//GameBoardクラスの初期化
+		_gameBoard = new GameBoard(_gameController,_deck,View["CardContainer"]);
 		_gameBoard.Subscribe();
 
 		_mainCamera = Camera.main;
@@ -65,12 +70,13 @@ public class GameUICtrl : UICtrl
 
 	private void Update()
 	{
+		//修正必要
 		if (Input.GetMouseButtonDown(0) && GameManager.Instance.CurrentGamePlayState == GamePlayState.SelectCards)
 		{
 			// スクリーン座標をワールド座標に変換
 			Vector3 mouseWorldPos = _mainCamera.ScreenToWorldPoint(Input.mousePosition + new Vector3(0, 0, _mainCamera.nearClipPlane));
 
-			_gameBoard.FlipCard(mouseWorldPos);
+			_gameBoard.SelecteCard(mouseWorldPos);
 		}
 	}
 

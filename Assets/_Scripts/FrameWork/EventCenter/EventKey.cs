@@ -16,6 +16,8 @@ namespace FrameWork.EventCenter
         OnLeaveOnline,
         
         ShowStartButton,
+        
+        SetShuffledCard,
     }
     
     

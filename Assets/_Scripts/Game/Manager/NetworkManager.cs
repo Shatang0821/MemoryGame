@@ -1,11 +1,10 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using FrameWork.EventCenter;
+using FrameWork.Utils;
 using Photon.Pun;
 using Photon.Realtime;
-using Unity.VisualScripting;
 using UnityEngine;
+using Logger = FrameWork.Utils.Logger;
 
 public class NetworkManager : MonoBehaviourPunCallbacks
 {
@@ -28,7 +27,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         _photonView = GetComponent<PhotonView>();
         EventCenter.AddListener(EventKey.OnStartOnLine,StartOnlinePlay);
         EventCenter.AddListener(EventKey.OnLeaveOnline,LeaveOnlinePlay);
-        
+        Debug.Log(Application.persistentDataPath);
     }
 
     private void OnDestroy()
@@ -86,8 +85,6 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         {
             Debug.Log("部屋のプレイヤー数が2人になりました。ゲームを開始します。");
             EventCenter.TriggerEvent(EventKey.ShowStartButton);
-            //EventCenter.TriggerEvent(StateKey.OnSceneStateChange, SceneState.Gameplay);
-            //EventCenter.TriggerEvent(StateKey.OnGameStateChange, GamePlayState.Prepare);
         }
     }
     
@@ -122,21 +119,20 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         }
     }
 
-    /// <summary>
-    /// シャッフルカードのデータを送る
-    /// </summary>
-    public void SendshuffleCard()
+    public void SendShuffledCard(int[] shuffledCards)
     {
         if (PhotonNetwork.IsMasterClient)
         {
-            Debug.Log("shuffle");
+            _photonView.RPC("ShareShuffledDeck",RpcTarget.Others,shuffledCards);
         }
     }
-
+    
     [PunRPC]
-    private void GetshuffleCard()
-    {
-        
+    private void ShareShuffledDeck(int[] shuffledSelfIds)
+    { 
+        Logger.Log("ShareShuffle");
+        // シャッフルされたSelfIdリストを受け取り、デッキを更新
+        EventCenter.TriggerEvent<int[]>(EventKey.SetShuffledCard,shuffledSelfIds);
     }
     
     [PunRPC]

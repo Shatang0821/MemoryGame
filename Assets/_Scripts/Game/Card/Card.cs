@@ -44,10 +44,14 @@ public class Card
         Debug.Log(SelfId);
     }
 
-    public void SetFrontSprite(int cardImage)
+    /// <summary>
+    /// 絵札イメージの初期化
+    /// </summary>
+    /// <param name="cardImageIndex"></param>
+    public void SetFrontSprite(int cardImageIndex)
     {
         //カード画像の設定
-        switch (cardImage)
+        switch (cardImageIndex)
         {
             case (int)CardImage.Spring:
                 FrontSprite = ResLoader.Instance.SpringSprites[Id-1];
@@ -64,21 +68,24 @@ public class Card
         }
     }
 
+    /// <summary>
+    /// リセット処理
+    /// </summary>
     public void Reset()
     {
-        SetCardImageFront(false);
+        ToggleCardFace(false);
         CardPrefab.SetActive(false);
         IsMatched = false;
         IsFaceUp = false;
     }
 
     /// <summary>
-    /// カードの絵札向き
+    /// カードの表面または裏面を表示します。
     /// </summary>
-    /// <param name="b"></param>
-    public void SetCardImageFront(bool b)
+    /// <param name="showFace">trueの場合、カードの表面を表示。falseの場合、裏面を表示。</param>
+    public void ToggleCardFace(bool showFace)
     {
-        if (b)
+        if (showFace)
         {
             Image.sprite = FrontSprite;
             IsFaceUp = true;

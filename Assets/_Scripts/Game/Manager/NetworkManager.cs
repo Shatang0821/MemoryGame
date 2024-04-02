@@ -1,6 +1,4 @@
-using System.Collections.Generic;
 using FrameWork.EventCenter;
-using FrameWork.Utils;
 using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine;
@@ -16,7 +14,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     {
         if (Instance == null)
         {
-            Instance = this as NetworkManager;
+            Instance = this;
         }
         else if(Instance != this)
         {
@@ -110,16 +108,29 @@ public class NetworkManager : MonoBehaviourPunCallbacks
             _photonView.RPC("EnterGameScene",RpcTarget.All);
         }
     }
+    [PunRPC]
+    private void EnterGameScene()
+    {
+        GameController.Instance.InitializePlayers();
+        EventCenter.TriggerEvent(EventKey.OnSceneStateChange, SceneState.Gameplay);
+        EventCenter.TriggerEvent(EventKey.OnGameStateChange, GamePlayState.Prepare);
+    }
 
-    public void OnSelcteStartButton()
+    
+    public void OnSelectStartButton()
     {
         if (PhotonNetwork.IsMasterClient)
         {
-            Debug.Log("OnSelcteStartButton");
-            _photonView.RPC("EnterSelecteScene",RpcTarget.All);
+            _photonView.RPC("EnterSelectScene",RpcTarget.All);
         }
     }
-
+    [PunRPC]
+    private void EnterSelectScene()
+    {
+        EventCenter.TriggerEvent(EventKey.OnStartSelect);
+    }
+    
+    
     public void SendShuffledCard(int[] shuffledCards)
     {
         if (PhotonNetwork.IsMasterClient)
@@ -127,26 +138,21 @@ public class NetworkManager : MonoBehaviourPunCallbacks
             _photonView.RPC("ShareShuffledDeck",RpcTarget.Others,shuffledCards);
         }
     }
-    
     [PunRPC]
     private void ShareShuffledDeck(int[] shuffledSelfIds)
     { 
-        Logger.Log("ShareShuffle");
         // シャッフルされたSelfIdリストを受け取り、デッキを更新
-        EventCenter.TriggerEvent<int[]>(EventKey.SetShuffledCard,shuffledSelfIds);
+        EventCenter.TriggerEvent(EventKey.SetShuffledCard,shuffledSelfIds);
     }
-    
-    [PunRPC]
-    private void EnterGameScene()
+
+    public void SendClickedCard(int cardSelfId)
     {
-        EventCenter.TriggerEvent(EventKey.OnSceneStateChange, SceneState.Gameplay);
-        EventCenter.TriggerEvent(EventKey.OnGameStateChange, GamePlayState.Prepare);
+        _photonView.RPC("ShareClickedCard",RpcTarget.Others,cardSelfId);
     }
 
     [PunRPC]
-    private void EnterSelecteScene()
+    private void ShareClickedCard(int cardSelfId)
     {
-        EventCenter.TriggerEvent(EventKey.OnStartSelect);
+        GameController.Instance.SyncSelectedCard(cardSelfId);
     }
-    
 }

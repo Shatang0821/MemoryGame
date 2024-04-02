@@ -8,7 +8,7 @@ using Logger = FrameWork.Utils.Logger;
 
 public class Deck
 {
-    private List<Card> _cards;
+    private List<Card> _cards;      //カードのSelfIdを-1にすればこのリストに自分が見つける
     private List<int> _randomCardsSelfId;
     private Dictionary<int, Card> _cardTable;
     
@@ -93,6 +93,10 @@ public class Deck
         _randomCardsSelfId.Clear();
     }
     
+    /// <summary>
+    /// 同期用メソッド、受け取ったカードIDを
+    /// </summary>
+    /// <param name="shuffledSelfIds"></param>
     public void SetShuffledDeck(int[] shuffledSelfIds)
     {
         _randomCardsSelfId.Clear();

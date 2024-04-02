@@ -149,7 +149,7 @@ public class GameBoard
         {
             return null;
         }
-
+        
         return card;
     }
 

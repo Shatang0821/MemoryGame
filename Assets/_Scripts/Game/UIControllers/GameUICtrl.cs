@@ -1,14 +1,6 @@
-using System;
 using UnityEngine;
-using System.Collections;
-using UnityEngine.UI;
 using FrameWork.Utils;
-using System.Collections.Generic;
 using FrameWork.EventCenter;
-using JetBrains.Annotations;
-using Photon.Pun;
-using UnityEngine.EventSystems;
-
 
 public class GameUICtrl : UICtrl
 {
@@ -76,7 +68,7 @@ public class GameUICtrl : UICtrl
     {
         if (GameManager.Instance.IsOnlineMode)
         {
-            NetworkManager.Instance.OnSelcteStartButton();
+            NetworkManager.Instance.OnSelectStartButton();
         }
         else
         {

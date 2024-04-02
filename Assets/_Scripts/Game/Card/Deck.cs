@@ -131,8 +131,12 @@ public class Deck
 
         for (int i = 0; i < _randomCardsSelfId.Count; i++)
         {
-            DebugLogger.Log(_randomCardsSelfId[i] + "," + _cardTable[_randomCardsSelfId[i]].Id);
+            //DebugLogger.Log(_randomCardsSelfId[i] + "," + _cardTable[_randomCardsSelfId[i]].Id);
         }
-        NetworkManager.Instance.SendShuffledCard(_randomCardsSelfId.ToArray());
+
+        if (GameManager.Instance.IsOnlineMode)
+        {
+            NetworkManager.Instance.SendShuffledCard(_randomCardsSelfId.ToArray());
+        }
     }
 }

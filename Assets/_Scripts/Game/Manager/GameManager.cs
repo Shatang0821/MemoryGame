@@ -23,20 +23,15 @@ public enum GamePlayState
 
 public class GameManager : PersistentUnitySingleton<GameManager>
 {
-    [SerializeField] private SceneState _currentSceneState;
-    [SerializeField] private GamePlayState _currentGamePlayState;
+    [SerializeField] private SceneState _currentSceneState;         //UIPanelのこと
+    [SerializeField] private GamePlayState _currentGamePlayState;   //ゲーム進行状態
 
+    public bool IsOnlineMode { get; set; } = false;
     public GamePlayState CurrentGamePlayState => _currentGamePlayState;
 
-    private readonly string _titleUI = "TitleUI";
-    private readonly string _gameUI = "GameUI";
-    private readonly string _endUI = "EndUI";
-
-    protected override void Awake()
-    {
-        base.Awake();
-        DebugLogger.Log("GameManager");
-    }
+    private const string _titleUI = "TitleUI";
+    private const string _gameUI = "GameUI";
+    private const string _endUI = "EndUI";
 
     private void Start()
     {

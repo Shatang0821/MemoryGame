@@ -1,6 +1,7 @@
 ﻿using System.Xml;
 using UnityEngine;
 using UnityEngine.UI;
+using DG.Tweening;
 
 public enum CardImage
 {
@@ -9,16 +10,19 @@ public enum CardImage
     Autumn,
     Winter
 }
+
 public class Card
 {
     public int SelfId { get; private set; }
     public int Id { get; private set; }
     public int CardImageNum { get; private set; }
-    //public Sprite Sprite { get; private set; }
+
     public GameObject CardPrefab { get; private set; }
     public Image Image { get; private set; }
     public Sprite FrontSprite { get; private set; }
     public Sprite BackSprite { get; private set; }
+
+    private RectTransform _rectTransform;
     public bool IsMatched { get; private set; }
     public bool IsFaceUp { get; private set; }
     
@@ -28,18 +32,18 @@ public class Card
     /// <param name="id">カード数字</param>
     /// <param name="cardImage">カード絵札に対応する数字</param>
     /// <param name="gameObject">カードオブジェクト</param>
-    public Card(int id,int cardImage,GameObject gameObject)
+    public Card(int id, int cardImage, GameObject gameObject)
     {
         this.Id = id;
         //this.Sprite = image;
         this.CardPrefab = gameObject;
         this.Image = gameObject.GetComponent<Image>();
         this.CardImageNum = cardImage;
-
-        SetFrontSprite(cardImage);
+        this._rectTransform = gameObject.GetComponent<RectTransform>();
+        InitFrontSprite(cardImage);
         //デフォルトは裏面画像を使用する
         BackSprite = Image.sprite;
-        
+
         this.SelfId = id + CardImageNum * 6;
         Debug.Log(SelfId);
     }
@@ -48,22 +52,22 @@ public class Card
     /// 絵札イメージの初期化
     /// </summary>
     /// <param name="cardImageIndex"></param>
-    public void SetFrontSprite(int cardImageIndex)
+    public void InitFrontSprite(int cardImageIndex)
     {
         //カード画像の設定
         switch (cardImageIndex)
         {
             case (int)CardImage.Spring:
-                FrontSprite = ResLoader.Instance.SpringSprites[Id-1];
+                FrontSprite = ResLoader.Instance.SpringSprites[Id - 1];
                 break;
             case (int)CardImage.Summer:
-                FrontSprite = ResLoader.Instance.SummerSprites[Id-1];
+                FrontSprite = ResLoader.Instance.SummerSprites[Id - 1];
                 break;
             case (int)CardImage.Autumn:
-                FrontSprite = ResLoader.Instance.AutumnSprites[Id-1];
+                FrontSprite = ResLoader.Instance.AutumnSprites[Id - 1];
                 break;
             case (int)CardImage.Winter:
-                FrontSprite = ResLoader.Instance.WinterSprites[Id-1];
+                FrontSprite = ResLoader.Instance.WinterSprites[Id - 1];
                 break;
         }
     }
@@ -85,16 +89,29 @@ public class Card
     /// <param name="showFace">trueの場合、カードの表面を表示。falseの場合、裏面を表示。</param>
     public void ToggleCardFace(bool showFace)
     {
-        if (showFace)
-        {
-            Image.sprite = FrontSprite;
-            IsFaceUp = true;
-        }
-        else
-        {
-            Image.sprite = BackSprite;
-            IsFaceUp = false;
-        }
+        RotateCard(showFace);
+    }
+
+    private void RotateCard(bool showFace)
+    {
+        // Dotweenで回転処理を行う
+        _rectTransform.DORotate(new Vector3(0f, 90f, 0f), 0.2f)
+            // 回転が完了したら
+            .OnComplete(() =>
+            {
+                // 回転が90度に達した時点で、表裏を切り替える
+                if (showFace)
+                {
+                    Image.sprite = FrontSprite; // 表面を表示
+                }
+                else
+                {
+                    Image.sprite = BackSprite; // 裏面を表示
+                }
+                _rectTransform.DORotate(new Vector3(0f, 0f, 0f), 0.2f)
+                    // 回転が完了したら
+                    .OnComplete(() => { IsFaceUp = showFace; });
+            });
     }
 
     /// <summary>

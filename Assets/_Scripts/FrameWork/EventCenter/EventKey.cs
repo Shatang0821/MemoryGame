@@ -4,10 +4,11 @@ namespace FrameWork.EventCenter
 {
     public enum EventKey
     {
-        OnChangeUIPrefab,
+        OnChangeUIPrefab,       //UIプレハブの切り替え
         OnStartSelect,
         OnSceneStateChange,
         OnGameStateChange,
+        
         OnGameStatePrepare,
         OnGameStateSelectCards,
         OnGameStateCheckCards,
@@ -15,7 +16,8 @@ namespace FrameWork.EventCenter
         OnStartOnLine,
         OnLeaveOnline,
         
-        ShowStartButton,
+        ShowCardsInBoard,       //対戦用のかードを配る
+        ShowStartButton,        
         
         SetShuffledCard,
     }

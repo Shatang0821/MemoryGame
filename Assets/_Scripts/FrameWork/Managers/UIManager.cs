@@ -2,17 +2,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using FrameWork.Utils;
-using Photon.Pun;
-using Unity.Mathematics;
-
+using FrameWork.EventCenter;
 namespace FrameWork.Manager
 {
     public class UIManager : PersistentUnitySingleton<UIManager>
     {
         public GameObject Canvas;
 
-        private Dictionary<string, GameObject> UiPrefabs; //Ctrlプレハブ
-        private GameObject _currentUIPrefab;
+        private Dictionary<string, GameObject> UiPrefabs;   //Ctrlプレハブ
+        private GameObject _currentUIPrefab;                //現在UIPanel
 
         /// <summary>
         /// UIプレハブルート
@@ -35,12 +33,12 @@ namespace FrameWork.Manager
 
         private void OnEnable()
         {
-            EventCenter.EventCenter.AddListener<string>(EventCenter.EventKey.OnChangeUIPrefab, ChangeUIPrefab);
+            EventCenter.EventCenter.AddListener<string>(EventKey.OnChangeUIPrefab, ChangeUIPrefab);
         }
 
         private void OnDisable()
         {
-            EventCenter.EventCenter.RemoveListener<string>(EventCenter.EventKey.OnChangeUIPrefab, ChangeUIPrefab);
+            EventCenter.EventCenter.RemoveListener<string>(EventKey.OnChangeUIPrefab, ChangeUIPrefab);
         }
 
         /// <summary>

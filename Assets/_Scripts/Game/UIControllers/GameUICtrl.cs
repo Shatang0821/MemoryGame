@@ -12,96 +12,97 @@ using UnityEngine.EventSystems;
 
 public class GameUICtrl : UICtrl
 {
-	private string _inPlay = "InPlay";
-	private string _inPrepare = "InPrepare";
-	private string _endButton = "EndButton";
-	private string _startButton = "InPrepare/StartButton";
-	private GameBoard _gameBoard;
-	private Deck _deck;
-	private GameController _gameController;
-	
-	private Camera _mainCamera;
-	
-	public override void Awake() 
-	{
-		base.Awake();
-		//GameControllerクラスの初期化
-		_gameController = new GameController();
-		//Deckクラスの初期化
-		_deck = new Deck(View["CardContainer"]);
-		
-		//GameBoardクラスの初期化
-		_gameBoard = new GameBoard(_gameController,_deck,View["CardContainer"]);
-		_gameBoard.Subscribe();
+    private string _inPlay = "InPlay";
+    private string _inPrepare = "InPrepare";
+    private string _endButton = "EndButton";
+    private string _startButton = "InPrepare/StartButton";
 
-		_mainCamera = Camera.main;
-		this.gameObject.SetActive(false);
-		EventCenter.AddListener(EventKey.OnStartSelect,OnGameStartSelect);
-	}
+    private Camera _mainCamera;
 
-	private void OnEnable()
-	{
-		AddButtonListener(_endButton,OnEndButton);
-		AddButtonListener(_startButton,OnStartButton);
-		
-		SetViewActive(_inPrepare,true);
-		
-		_gameBoard?.OnEnable();
-		_deck?.OnEnable();
-	}
+    public override void Awake()
+    {
+        base.Awake();
+        GameController.Instance.Init(View["CardContainer"]);
+        
+        _mainCamera = Camera.main;
+        this.gameObject.SetActive(false);
+        EventCenter.AddListener(EventKey.OnStartSelect, OnGameStartSelect);
+    }
 
-	private void OnDisable()
-	{
-		RemoveButtonListener(_endButton);
-		RemoveButtonListener(_startButton);
-		
-		SetViewActive(_inPlay,false);
-		SetViewActive(_inPrepare,false);
-		
-		_gameBoard?.OnDisable();
-		_deck?.OnDisable();
-	}
+    private void OnEnable()
+    {
+        AddButtonListener(_endButton, OnEndButton);
+        AddButtonListener(_startButton, OnStartButton);
 
-	private void OnDestroy()
-	{
-		_gameBoard.Unsubscribe();
-		EventCenter.RemoveListener(EventKey.OnStartSelect,OnGameStartSelect);
-	}
+        SetViewActive(_inPrepare, true);
 
-	private void Update()
-	{
-		//修正必要
-		if (Input.GetMouseButtonDown(0) && GameManager.Instance.CurrentGamePlayState == GamePlayState.SelectCards)
-		{
-			// スクリーン座標をワールド座標に変換
-			Vector3 mouseWorldPos = _mainCamera.ScreenToWorldPoint(Input.mousePosition + new Vector3(0, 0, _mainCamera.nearClipPlane));
+        GameController.Instance.OnEnable();
+    }
 
-			_gameBoard.SelecteCard(mouseWorldPos);
-		}
-	}
+    private void OnDisable()
+    {
+        RemoveButtonListener(_endButton);
+        RemoveButtonListener(_startButton);
 
-	private void OnEndButton()
-	{
-		EventCenter.TriggerEvent(EventKey.OnSceneStateChange, SceneState.GameOver);
-		EventCenter.TriggerEvent(EventKey.OnGameStateChange, GamePlayState.End);
-	}
-	
-	private void OnStartButton()
-	{
-		NetworkManager.Instance.OnSelcteStartButton();
-	}
-	
-	void OnGameStartSelect()
-	{
-		EventCenter.TriggerEvent(EventKey.OnGameStateChange, GamePlayState.SelectCards);
-		ShowSelectGameUI();
-	}
+        SetViewActive(_inPlay, false);
+        SetViewActive(_inPrepare, false);
 
-	private void ShowSelectGameUI()
-	{
-		View["InPrepare"].SetActive(false);
-		View["InPlay"].SetActive(true);
-    
-		_gameBoard.PlaceGameCard();
-	}
+        GameController.Instance.OnDisable();
+    }
+
+    private void OnDestroy()
+    {
+        EventCenter.RemoveListener(EventKey.OnStartSelect, OnGameStartSelect);
+    }
+
+    private void Update()
+    {
+        //修正必要
+        if (Input.GetMouseButtonDown(0) && GameManager.Instance.CurrentGamePlayState == GamePlayState.SelectCards)
+        {
+        	// スクリーン座標をワールド座標に変換
+        	Vector3 mouseWorldPos = _mainCamera.ScreenToWorldPoint(Input.mousePosition + new Vector3(0, 0, _mainCamera.nearClipPlane));
+        	GameController.Instance.SelectCard(mouseWorldPos);
+        }
+    }
+
+    private void OnEndButton()
+    {
+        EventCenter.TriggerEvent(EventKey.OnSceneStateChange, SceneState.GameOver);
+        EventCenter.TriggerEvent(EventKey.OnGameStateChange, GamePlayState.End);
+    }
+
+    private void OnStartButton()
+    {
+        if (GameManager.Instance.IsOnlineMode)
+        {
+            NetworkManager.Instance.OnSelcteStartButton();
+        }
+        else
+        {
+            EventCenter.TriggerEvent(EventKey.OnStartSelect);
+        }
+        
+    }
+
+    /// <summary>
+    /// 対戦開始　カード選択画面に移る
+    /// </summary>
+    void OnGameStartSelect()
+    {
+        EventCenter.TriggerEvent(EventKey.OnGameStateChange, GamePlayState.SelectCards);
+        ShowSelectGameUI();
+    }
+
+    /// <summary>
+    /// カード選択画面
+    /// </summary>
+    private void ShowSelectGameUI()
+    {
+        View["InPrepare"].SetActive(false);
+        View["InPlay"].SetActive(true);
+
+        //カードを配る
+        EventCenter.TriggerEvent(EventKey.ShowCardsInBoard);
+    }
 }

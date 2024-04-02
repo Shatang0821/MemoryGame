@@ -5,7 +5,6 @@ using UnityEngine;
 
 public class GameBoard
 {
-    private GameController _gameController;
     private GameObject _cardContainer;                          //カード親オブジェクト    
     private Card[,] _cards;                                     //盤面順番のカード二次元配列
     
@@ -17,11 +16,10 @@ public class GameBoard
     private const int CARDS_PER_ROW = 6;                        //一行のカード数
     private int _totalCards;                                    //カード総数
 
-    public GameBoard(GameController gameController,Deck deck,GameObject cardContainer)
+    public GameBoard(Deck deck,GameObject cardContainer)
     {
         _cards = new Card[4, 6];
         
-        this._gameController = gameController;
         this._deck = deck;
         this._cardContainer = cardContainer;
         _totalCards = _deck.Cards.Count;
@@ -37,7 +35,8 @@ public class GameBoard
     /// </summary>
     public void Subscribe()
     {
-        EventCenter.AddListener(EventKey.OnGameStatePrepare, PlacePrepareCard);  
+        EventCenter.AddListener(EventKey.OnGameStatePrepare, PlacePrepareCard);
+        EventCenter.AddListener(EventKey.ShowCardsInBoard,PlaceGameCard);
     }
 
     /// <summary>
@@ -46,11 +45,12 @@ public class GameBoard
     public void Unsubscribe()
     {
         EventCenter.RemoveListener(EventKey.OnGameStatePrepare, PlacePrepareCard);
+        EventCenter.RemoveListener(EventKey.ShowCardsInBoard,PlaceGameCard);
     }
     
     public void OnEnable()
     {
-        DebugLogger.Log("GameBoard OnEnable");
+        //DebugLogger.Log("GameBoard OnEnable");
     }
 
     /// <summary>
@@ -92,15 +92,13 @@ public class GameBoard
             PlaceCardOnBoard(_deck.Cards[i], i, true); // 第三引数はカードを表向きにするかどうか
         }
     }
-
+    
     /// <summary>
     /// ゲーム開始時のカードを配る
     /// シャッフル後と裏向きのカードを配る
     /// </summary>
     public void PlaceGameCard()
     {
-       
-        
         // シャッフルされたカードのIDを基にカードを配る
         for (int i = 0; i < _deck.RandomCards.Count; i++)
         {
@@ -117,7 +115,6 @@ public class GameBoard
             }
         }
     }
-
     #endregion
     
     
@@ -145,14 +142,15 @@ public class GameBoard
     /// カードをめくる(仮)
     /// </summary>
     /// <param name="pos"></param>
-    public void SelecteCard(Vector3 pos)
+    public Card SelecteCard(Vector3 pos)
     {
         var card = JudgeCard(pos);
         if (card == null || card.IsFaceUp == true)
         {
-            return;
+            return null;
         }
-        _gameController.SelectCard(card,_totalCards);
+
+        return card;
     }
 
     

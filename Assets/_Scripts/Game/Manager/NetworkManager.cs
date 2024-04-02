@@ -58,7 +58,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public override void OnJoinedRoom()
     {
         Debug.Log("JoinRoom");
-        
+        GameManager.Instance.IsOnlineMode = true;
         // 部屋に参加した際の追加のロジックをここに記述
         CheckPlayersInRoom();
     }
@@ -69,7 +69,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         PhotonNetwork.CreateRoom(null, new RoomOptions(){MaxPlayers = 2}, TypedLobby.Default);
     }
     
-    public override void OnPlayerEnteredRoom(Player newPlayer)
+    public override void OnPlayerEnteredRoom(Photon.Realtime.Player newPlayer)
     {
         Debug.LogFormat("新しいプレイヤーが参加しました: {0}", newPlayer.NickName);
 
@@ -92,6 +92,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     {
         // 部屋から正常に出た場合に呼び出される
         Debug.Log("部屋から退出しました。");
+        GameManager.Instance.IsOnlineMode = false;
     }
 
     public override void OnDisconnected(DisconnectCause cause)

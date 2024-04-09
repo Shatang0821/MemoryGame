@@ -12,13 +12,13 @@ using Unity.VisualScripting;
 
 public class TitleUICtrl : UICtrl
 {
-    private readonly string _startButton = "StartButton";
-    private readonly string _startOnlineButton = "OnLineStart";
+    private const string _startButton = "StartButton";
+    private const string _startOnlineButton = "OnLineStart";
     public override void Awake()
     {
         base.Awake();
-        this.gameObject.SetActive(false);
         EventCenter.AddListener(EventKey.ShowStartButton,ShowStartButton);
+        this.gameObject.SetActive(false);
     }
 
     private void OnEnable()

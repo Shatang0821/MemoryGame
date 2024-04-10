@@ -5,9 +5,9 @@ namespace FrameWork.EventCenter
     public enum EventKey
     {
         OnChangeUIPrefab,       //UIプレハブの切り替え
-        OnStartSelect,
-        OnSceneStateChange,
-        OnGameStateChange,
+        OnStartSelect,          //スタートボタン
+        OnSceneStateChange,     //シーンの切り替え
+        OnGameStateChange,      //ゲーム状態切り替え
         
         OnGameStatePrepare,
         OnGameStateSelectCards,
@@ -20,6 +20,9 @@ namespace FrameWork.EventCenter
         ShowStartButton,        
         
         SetShuffledCard,
+        
+        SwitchTurn,             //ターンの切り替え
+        OnChangePoint,          //ポイントUIの更新
     }
     
     

@@ -66,6 +66,14 @@ namespace FrameWork.EventCenter
 
             m_EventDictionary[eventKey] = Delegate.Combine(m_EventDictionary[eventKey], callBack);
         }
+        
+        public static void AddListener<T1,T2>(EventKey eventKey, CallBack<T1,T2> callBack)
+        {
+            OnListenerAdding(eventKey, callBack);
+
+            m_EventDictionary[eventKey] = Delegate.Combine(m_EventDictionary[eventKey], callBack);
+        }
+        
 
         /// <summary>
         /// 戻り値一つ持ちデリケートの登録
@@ -156,6 +164,15 @@ namespace FrameWork.EventCenter
 
             OnListenerRemoved(eventKey);
         }
+        
+        public static void RemoveListener<T1,T2>(EventKey eventKey, CallBack<T1,T2> callBack)
+        {
+            OnListenerRemoving(eventKey, callBack);
+
+            m_EventDictionary[eventKey] = (CallBack<T1,T2>)m_EventDictionary[eventKey] - callBack;
+
+            OnListenerRemoved(eventKey);
+        }
 
         /// <summary>
         /// 戻り値一つある
@@ -225,6 +242,21 @@ namespace FrameWork.EventCenter
                 if (d is CallBack<T> callBack)
                 {
                     callBack(arg);
+                }
+                else
+                {
+                    throw new Exception(string.Format("イベントを実行失敗:イベント{0}は違う型のデリケートを持っている", eventKey));
+                }
+            }
+        }
+        
+        public static void TriggerEvent<T1,T2>(EventKey eventKey, T1 arg1,T2 arg2)
+        {
+            if (m_EventDictionary.TryGetValue(eventKey, out Delegate d))
+            {
+                if (d is CallBack<T1,T2> callBack)
+                {
+                    callBack(arg1,arg2);
                 }
                 else
                 {

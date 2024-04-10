@@ -3,6 +3,9 @@ using FrameWork.EventCenter;
 using FrameWork.Utils;
 using UnityEngine;
 
+/// <summary>
+/// カード配置情報保持クラス
+/// </summary>
 public class GameBoard
 {
     private GameObject _cardContainer;                          //カード親オブジェクト    

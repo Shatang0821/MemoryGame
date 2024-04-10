@@ -6,6 +6,9 @@ using FrameWork.Utils;
 using UnityEngine;
 using Logger = FrameWork.Utils.Logger;
 
+/// <summary>
+/// カード順番保持するクラス
+/// </summary>
 public class Deck
 {
     private List<Card> _cards;      //カードのSelfIdを-1にすればこのリストに自分が見つける

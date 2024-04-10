@@ -13,23 +13,34 @@ public class GameUICtrl : UICtrl
     private string _player1CardContainer = "InPlay/Player1CardContainer";
     private string _player2CardContainer = "InPlay/Player2CardContainer";
 
+    private string _player1Point = "InPlay/Player1CardContainer/Point";
+    private string _player2Point = "InPlay/Player2CardContainer/Point";
+
     private Outline _player1OutLine;
     private Outline _player2OutLine;
+
+    private Text _player1PointText;
+    private Text _player2PointText;
     
     private Camera _mainCamera;
 
     public override void Awake()
     {
         base.Awake();
-        GameController.Instance.Init(View["CardContainer"],this);
+        GameController.Instance.Init(View["CardContainer"]);
         
         _mainCamera = Camera.main;
 
         _player1OutLine = View[_player1CardContainer].GetComponent<Outline>();
         _player2OutLine = View[_player2CardContainer].GetComponent<Outline>();
         
+        _player1PointText = View[_player1Point].GetComponent<Text>();
+        _player2PointText = View[_player2Point].GetComponent<Text>();
+        
         this.gameObject.SetActive(false);
         EventCenter.AddListener(EventKey.OnStartSelect, OnGameStartSelect);
+        EventCenter.AddListener<Player>(EventKey.SwitchTurn,ChangeContainerOutLineColor);
+        EventCenter.AddListener<int,int>(EventKey.OnChangePoint,ChangePointText);
     }
 
     private void OnEnable()
@@ -57,6 +68,8 @@ public class GameUICtrl : UICtrl
     private void OnDestroy()
     {
         EventCenter.RemoveListener(EventKey.OnStartSelect, OnGameStartSelect);
+        EventCenter.RemoveListener<Player>(EventKey.SwitchTurn,ChangeContainerOutLineColor);
+        EventCenter.RemoveListener<int,int>(EventKey.OnChangePoint,ChangePointText);
     }
 
     private void Update()
@@ -110,7 +123,11 @@ public class GameUICtrl : UICtrl
         EventCenter.TriggerEvent(EventKey.ShowCardsInBoard);
     }
 
-    public void ChangeContainerOutLineColor(Player player)
+    /// <summary>
+    /// ターンの切り替え
+    /// </summary>
+    /// <param name="player">どのプレイヤー</param>
+    private void ChangeContainerOutLineColor(Player player)
     {
         switch (player.PlayerNum)
         {
@@ -123,6 +140,24 @@ public class GameUICtrl : UICtrl
                 _player2OutLine.effectColor = Color.red;
                 break;
             default:
+                break;
+        }
+    }
+
+    /// <summary>
+    /// ポイントUI変更する
+    /// </summary>
+    /// <param name="playerNum"></param>
+    /// <param name="point"></param>
+    private void ChangePointText(int playerNum,int point)
+    {
+        switch (playerNum)
+        {
+            case 1:
+                _player1PointText.text = point.ToString();
+                break;
+            case 2:
+                _player2PointText.text = point.ToString();
                 break;
         }
     }

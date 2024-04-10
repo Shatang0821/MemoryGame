@@ -7,24 +7,24 @@ using Photon.Pun;
 
 public class GameController : Singleton<GameController>
 {
-    public Player Player1 { get; private set; }
+    //プレイヤーインスタンス
+    public Player Player1 { get; private set; } 
     public Player Player2 { get; private set; }
-
     private Player _currentPlayer;
     
+    //カード関連
     private List<Card> _selectedCards;                          //選択したカード
     private int _matchedCardTotal;                              //マッチしたカード総数
     
-    private GameBoard _gameBoard;
-    private Deck _deck;
+    //盤面関連
+    private GameBoard _gameBoard;                            
+    private Deck _deck;                                         
 
+    //カード総数
     private int _cardTotal;
-
-    private GameUICtrl _gameUICtrl;
-    public void Init(GameObject cardContainer,GameUICtrl gameUICtrl)
+    public void Init(GameObject cardContainer)
     {
         _selectedCards = new List<Card>();
-        _gameUICtrl = gameUICtrl;
         //Deckクラスの初期化
         _deck = new Deck(cardContainer);
 		
@@ -46,7 +46,6 @@ public class GameController : Singleton<GameController>
             // ここでマスタークライアントかどうかに基づいて、Player1 と Player2 を初期化
             Player1 = new Player { IsMaster = true, IsMyTurn = true, PlayerNum = 1 };
             Player2 = new Player { IsMaster = false, IsMyTurn = false, PlayerNum = 2 };
-            _gameUICtrl.ChangeContainerOutLineColor(Player1);
         }
         else
         {
@@ -54,9 +53,9 @@ public class GameController : Singleton<GameController>
             // ここでマスタークライアントかどうかに基づいて、Player1 と Player2 を初期化
             Player1 = new Player { IsMaster = true, IsMyTurn = true, PlayerNum = 1 };
             Player2 = new Player { IsMaster = false, IsMyTurn = false, PlayerNum = 2 };
-            _gameUICtrl.ChangeContainerOutLineColor(Player1);
         }
         _currentPlayer = Player1;
+        EventCenter.TriggerEvent(EventKey.SwitchTurn, _currentPlayer);
     }
 
     public void OnEnable()
@@ -137,6 +136,7 @@ public class GameController : Singleton<GameController>
             _selectedCards[0].SetCardMatched();
             _selectedCards[1].SetCardMatched();
             _matchedCardTotal += _selectedCards.Count;
+            _currentPlayer.MyPoint += 2;
             if (_matchedCardTotal == _cardTotal)
             {
                 EventCenter.TriggerEvent(EventKey.OnGameStateChange,GamePlayState.End);
@@ -154,17 +154,19 @@ public class GameController : Singleton<GameController>
         EventCenter.TriggerEvent(EventKey.OnGameStateChange,GamePlayState.SelectCards);  
     }
 
+    /// <summary>
+    /// ターンの切り替え
+    /// </summary>
     private void SwitchTurn()
     {
         if (_currentPlayer == Player1)
         {
             _currentPlayer = Player2;
-            
         }
         else
         {
             _currentPlayer = Player1;
         }
-        _gameUICtrl.ChangeContainerOutLineColor(_currentPlayer);
+        EventCenter.TriggerEvent(EventKey.SwitchTurn, _currentPlayer);
     }
 }

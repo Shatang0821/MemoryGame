@@ -5,6 +5,8 @@ using UnityEngine.UI;
 
 public class GameUICtrl : UICtrl
 {
+    #region オブジェクト名
+
     private string _inPlay = "InPlay";
     private string _inPrepare = "InPrepare";
     private string _endButton = "EndButton";
@@ -16,41 +18,61 @@ public class GameUICtrl : UICtrl
     private string _player1Point = "InPlay/Player1CardContainer/Point";
     private string _player2Point = "InPlay/Player2CardContainer/Point";
 
+    #endregion
+    
+    //UIコンポーネント
     private Outline _player1OutLine;
     private Outline _player2OutLine;
 
     private Text _player1PointText;
     private Text _player2PointText;
-    
+
+    //カメラ
     private Camera _mainCamera;
 
     public override void Awake()
     {
         base.Awake();
         GameController.Instance.Init(View["CardContainer"]);
-        
+
         _mainCamera = Camera.main;
 
+        ComponentInitialize();
+
+        this.gameObject.SetActive(false);
+        
+        EventSubscribe();
+    }
+
+    /// <summary>
+    /// イベントの登録
+    /// </summary>
+    private void EventSubscribe()
+    {
+        EventCenter.AddListener(EventKey.OnStartSelect, OnGameStartSelect);
+        EventCenter.AddListener<Player>(EventKey.SwitchTurn, ChangeContainerOutLineColor);
+        EventCenter.AddListener<int, int>(EventKey.OnChangePoint, ChangePointText);
+    }
+
+    /// <summary>
+    /// コンポーネントの初期化
+    /// </summary>
+    private void ComponentInitialize()
+    {
         _player1OutLine = View[_player1CardContainer].GetComponent<Outline>();
         _player2OutLine = View[_player2CardContainer].GetComponent<Outline>();
-        
+
         _player1PointText = View[_player1Point].GetComponent<Text>();
         _player2PointText = View[_player2Point].GetComponent<Text>();
-        
-        this.gameObject.SetActive(false);
-        EventCenter.AddListener(EventKey.OnStartSelect, OnGameStartSelect);
-        EventCenter.AddListener<Player>(EventKey.SwitchTurn,ChangeContainerOutLineColor);
-        EventCenter.AddListener<int,int>(EventKey.OnChangePoint,ChangePointText);
     }
 
     private void OnEnable()
     {
-        GameController.Instance.InitializePlayers();
         AddButtonListener(_endButton, OnEndButton);
         AddButtonListener(_startButton, OnStartButton);
-
         SetViewActive(_inPrepare, true);
-
+                        
+        GameController.Instance.InitializePlayers();
         GameController.Instance.OnEnable();
     }
 
@@ -62,14 +84,18 @@ public class GameUICtrl : UICtrl
         SetViewActive(_inPlay, false);
         SetViewActive(_inPrepare, false);
 
+        _player1PointText.text = 0.ToString();
+        _player2PointText.text = 0.ToString();
+        
+        
         GameController.Instance.OnDisable();
     }
 
     private void OnDestroy()
     {
         EventCenter.RemoveListener(EventKey.OnStartSelect, OnGameStartSelect);
-        EventCenter.RemoveListener<Player>(EventKey.SwitchTurn,ChangeContainerOutLineColor);
-        EventCenter.RemoveListener<int,int>(EventKey.OnChangePoint,ChangePointText);
+        EventCenter.RemoveListener<Player>(EventKey.SwitchTurn, ChangeContainerOutLineColor);
+        EventCenter.RemoveListener<int, int>(EventKey.OnChangePoint, ChangePointText);
     }
 
     private void Update()
@@ -77,12 +103,16 @@ public class GameUICtrl : UICtrl
         //修正必要
         if (Input.GetMouseButtonDown(0) && GameManager.Instance.CurrentGamePlayState == GamePlayState.SelectCards)
         {
-        	// スクリーン座標をワールド座標に変換
-        	Vector3 mouseWorldPos = _mainCamera.ScreenToWorldPoint(Input.mousePosition + new Vector3(0, 0, _mainCamera.nearClipPlane));
-        	GameController.Instance.SelectCard(mouseWorldPos);
+            // スクリーン座標をワールド座標に変換
+            Vector3 mouseWorldPos =
+                _mainCamera.ScreenToWorldPoint(Input.mousePosition + new Vector3(0, 0, _mainCamera.nearClipPlane));
+            GameController.Instance.SelectCard(mouseWorldPos);
         }
     }
 
+    /// <summary>
+    /// 終了ボタン
+    /// </summary>
     private void OnEndButton()
     {
         EventCenter.TriggerEvent(EventKey.OnSceneStateChange, SceneState.GameOver);
@@ -93,19 +123,18 @@ public class GameUICtrl : UICtrl
     {
         if (GameManager.Instance.IsOnlineMode)
         {
-            NetworkManager.Instance.OnSelectStartButton();
+            NetworkManager.Instance.SendStart();
         }
         else
         {
             EventCenter.TriggerEvent(EventKey.OnStartSelect);
         }
-        
     }
 
     /// <summary>
     /// 対戦開始　カード選択画面に移る
     /// </summary>
-    void OnGameStartSelect()
+    private void OnGameStartSelect()
     {
         EventCenter.TriggerEvent(EventKey.OnGameStateChange, GamePlayState.SelectCards);
         ShowSelectGameUI();
@@ -124,7 +153,7 @@ public class GameUICtrl : UICtrl
     }
 
     /// <summary>
-    /// ターンの切り替え
+    /// ターンの切り替えに応じてUIの変化処理
     /// </summary>
     /// <param name="player">どのプレイヤー</param>
     private void ChangeContainerOutLineColor(Player player)
@@ -149,7 +178,7 @@ public class GameUICtrl : UICtrl
     /// </summary>
     /// <param name="playerNum"></param>
     /// <param name="point"></param>
-    private void ChangePointText(int playerNum,int point)
+    private void ChangePointText(int playerNum, int point)
     {
         switch (playerNum)
         {

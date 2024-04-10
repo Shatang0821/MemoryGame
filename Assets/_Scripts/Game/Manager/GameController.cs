@@ -19,7 +19,8 @@ public class GameController : Singleton<GameController>
     //盤面関連
     private GameBoard _gameBoard;                            
     private Deck _deck;                                         
-
+    
+    public int WinnerNum { get; private set; }
     //カード総数
     private int _cardTotal;
     public void Init(GameObject cardContainer)
@@ -62,10 +63,18 @@ public class GameController : Singleton<GameController>
     {
         _gameBoard?.OnEnable();
         _deck?.OnEnable();
+
+        WinnerNum = -1;
     }
 
     public void OnDisable()
     {
+        Player1 = null;
+        Player2 = null;
+        
+        _matchedCardTotal = 0;
+        _selectedCards.Clear();
+        
         _gameBoard?.OnDisable();
         _deck?.OnDisable();
     }
@@ -139,7 +148,9 @@ public class GameController : Singleton<GameController>
             _currentPlayer.MyPoint += 2;
             if (_matchedCardTotal == _cardTotal)
             {
-                EventCenter.TriggerEvent(EventKey.OnGameStateChange,GamePlayState.End);
+                JudgeWinner();
+                EventCenter.TriggerEvent(EventKey.OnSceneStateChange, SceneState.GameOver);
+                EventCenter.TriggerEvent(EventKey.OnGameStateChange, GamePlayState.End);
                 return;
             }
         }
@@ -168,5 +179,21 @@ public class GameController : Singleton<GameController>
             _currentPlayer = Player1;
         }
         EventCenter.TriggerEvent(EventKey.SwitchTurn, _currentPlayer);
+    }
+
+    private void JudgeWinner()
+    {
+        if (Player1.MyPoint > Player2.MyPoint)
+        {
+            WinnerNum = 1;
+        }
+        else if (Player1.MyPoint < Player2.MyPoint)
+        {
+            WinnerNum = 2;
+        }
+        else
+        {
+            WinnerNum = 0;
+        }
     }
 }

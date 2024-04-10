@@ -8,12 +8,15 @@ using FrameWork.EventCenter;
 using Photon.Pun;
 using Photon.Realtime;
 using Unity.VisualScripting;
+using UnityEngine.InputSystem.Switch;
 
 
 public class TitleUICtrl : UICtrl
 {
     private const string _startButton = "StartButton";
     private const string _startOnlineButton = "OnLineStart";
+
+
     public override void Awake()
     {
         base.Awake();
@@ -23,6 +26,7 @@ public class TitleUICtrl : UICtrl
 
     private void OnEnable()
     {
+
         //ボタンにイベントを登録する
         AddButtonListener(_startButton, OnStartButton);
         AddButtonListener("Room/Start",OnLineStartGame);
@@ -41,6 +45,8 @@ public class TitleUICtrl : UICtrl
         SetMenuDisable();
     }
 
+    
+
     /// <summary>
     /// ルームパネルとそのボタンを非表示にする
     /// </summary>
@@ -57,7 +63,7 @@ public class TitleUICtrl : UICtrl
 
     private void OnLeaveButton()
     {
-        EventCenter.TriggerEvent(EventKey.OnLeaveOnline);
+        NetworkManager.Instance.LeaveOnlinePlay();
         SetMenuDisable();
     }
 
@@ -73,19 +79,26 @@ public class TitleUICtrl : UICtrl
     }
 
     /// <summary>
-    /// オンラインスタート
+    /// マルチプレイ内のゲームスタート
     /// </summary>
     private void OnLineStartGame()
     {
+        //ゲーム状態を切り替わるだけ
         NetworkManager.Instance.OnStartButton(); 
     }
 
+    /// <summary>
+    /// マルチプレイボタン
+    /// </summary>
     private void OnStartOnlineButton()
     {
         EventCenter.TriggerEvent(EventKey.OnStartOnLine);
         View["Room"].SetActive(true);
     }
     
+    /// <summary>
+    /// マルチプレイパネル内のスタートボタンの表示
+    /// </summary>
     private void ShowStartButton()
     {
         View["Room/Start"].SetActive(true);

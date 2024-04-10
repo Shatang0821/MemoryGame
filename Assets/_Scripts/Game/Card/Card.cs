@@ -48,6 +48,10 @@ public class Card
         Debug.Log(SelfId);
     }
 
+    ~Card()
+    {
+        DOTween.KillAll();
+    }
     /// <summary>
     /// 絵札イメージの初期化
     /// </summary>

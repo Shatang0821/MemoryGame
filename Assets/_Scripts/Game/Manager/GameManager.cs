@@ -85,6 +85,7 @@ public class GameManager : PersistentUnitySingleton<GameManager>
                 EventCenter.TriggerEvent(EventKey.OnChangeUIPrefab, _titleUI);
                 break;
             case SceneState.Gameplay:
+                //UIの表示
                 EventCenter.TriggerEvent(EventKey.OnChangeUIPrefab, _gameUI);
                 break;
             case SceneState.GameOver:

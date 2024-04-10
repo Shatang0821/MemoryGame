@@ -9,6 +9,8 @@ public class GameController : Singleton<GameController>
 {
     public Player Player1 { get; private set; }
     public Player Player2 { get; private set; }
+
+    private Player _currentPlayer;
     
     private List<Card> _selectedCards;                          //選択したカード
     private int _matchedCardTotal;                              //マッチしたカード総数
@@ -17,11 +19,12 @@ public class GameController : Singleton<GameController>
     private Deck _deck;
 
     private int _cardTotal;
-    
-    public void Init(GameObject cardContainer)
+
+    private GameUICtrl _gameUICtrl;
+    public void Init(GameObject cardContainer,GameUICtrl gameUICtrl)
     {
         _selectedCards = new List<Card>();
-        
+        _gameUICtrl = gameUICtrl;
         //Deckクラスの初期化
         _deck = new Deck(cardContainer);
 		
@@ -30,22 +33,30 @@ public class GameController : Singleton<GameController>
         _gameBoard.Subscribe();
 
         _cardTotal = _deck.Cards.Count;
-        InitializePlayers();
     }
 
+    /// <summary>
+    /// プレイヤー設定、オンラインとオフライン対戦
+    /// </summary>
     public void InitializePlayers()
     {
-        // ここでマスタークライアントかどうかに基づいて、Player1 と Player2 を初期化
-        if (PhotonNetwork.IsMasterClient)
+        if (PhotonNetwork.IsConnected)
         {
-            Player1 = new Player { IsMaster = true, IsMyTurn = true };
-            Player2 = new Player { IsMaster = false, IsMyTurn = false };
+            Debug.Log("OnLine");
+            // ここでマスタークライアントかどうかに基づいて、Player1 と Player2 を初期化
+            Player1 = new Player { IsMaster = true, IsMyTurn = true, PlayerNum = 1 };
+            Player2 = new Player { IsMaster = false, IsMyTurn = false, PlayerNum = 2 };
+            _gameUICtrl.ChangeContainerOutLineColor(Player1);
         }
         else
         {
-            Player1 = new Player { IsMaster = false, IsMyTurn = false };
-            Player2 = new Player { IsMaster = true, IsMyTurn = true };
+            Debug.Log("OffLine");
+            // ここでマスタークライアントかどうかに基づいて、Player1 と Player2 を初期化
+            Player1 = new Player { IsMaster = true, IsMyTurn = true, PlayerNum = 1 };
+            Player2 = new Player { IsMaster = false, IsMyTurn = false, PlayerNum = 2 };
+            _gameUICtrl.ChangeContainerOutLineColor(Player1);
         }
+        _currentPlayer = Player1;
     }
 
     public void OnEnable()
@@ -65,12 +76,7 @@ public class GameController : Singleton<GameController>
         _gameBoard.Unsubscribe();
     }
         
-    
-    // カード選択時の処理
-    public async void SyncSelectedCard(int selfId)
-    {
-        await ProcessCardSelection(selfId);
-    }
+   
     
     public async UniTask　SelectCard(Vector3 mouseWorldPos)
     {
@@ -81,9 +87,19 @@ public class GameController : Singleton<GameController>
         }
         if (GameManager.Instance.IsOnlineMode)
         {
-            NetworkManager.Instance.SendClickedCard(card.SelfId);
+            NetworkManager.Instance.SendClickedCard(card.SelfId,_currentPlayer);
         }
-        await ProcessCardSelection(card.SelfId);
+        else
+        {
+            SyncSelectedCard(card.SelfId);
+        }
+    }
+    
+     
+    // カード選択時の処理
+    public async void SyncSelectedCard(int selfId)
+    {
+        await ProcessCardSelection(selfId);
     }
 
     /// <summary>
@@ -132,8 +148,23 @@ public class GameController : Singleton<GameController>
             await UniTask.Delay(500);
             _selectedCards[0].ToggleCardFace(false);
             _selectedCards[1].ToggleCardFace(false);
+            SwitchTurn();
         }
         _selectedCards.Clear();
         EventCenter.TriggerEvent(EventKey.OnGameStateChange,GamePlayState.SelectCards);  
+    }
+
+    private void SwitchTurn()
+    {
+        if (_currentPlayer == Player1)
+        {
+            _currentPlayer = Player2;
+            
+        }
+        else
+        {
+            _currentPlayer = Player1;
+        }
+        _gameUICtrl.ChangeContainerOutLineColor(_currentPlayer);
     }
 }

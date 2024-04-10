@@ -111,7 +111,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     [PunRPC]
     private void EnterGameScene()
     {
-        GameController.Instance.InitializePlayers();
+        //GameController.Instance.InitializePlayers();
         EventCenter.TriggerEvent(EventKey.OnSceneStateChange, SceneState.Gameplay);
         EventCenter.TriggerEvent(EventKey.OnGameStateChange, GamePlayState.Prepare);
     }
@@ -145,9 +145,20 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         EventCenter.TriggerEvent(EventKey.SetShuffledCard,shuffledSelfIds);
     }
 
-    public void SendClickedCard(int cardSelfId)
+    public void SendClickedCard(int cardSelfId,Player player)
     {
-        _photonView.RPC("ShareClickedCard",RpcTarget.Others,cardSelfId);
+        if (PhotonNetwork.IsMasterClient && player.IsMaster)
+        {
+            _photonView.RPC("ShareClickedCard",RpcTarget.All,cardSelfId);
+        }
+        else if(!PhotonNetwork.IsMasterClient && !player.IsMaster)
+        {
+            _photonView.RPC("ShareClickedCard",RpcTarget.All,cardSelfId);
+        }
+        else
+        {
+            return;
+        }
     }
 
     [PunRPC]

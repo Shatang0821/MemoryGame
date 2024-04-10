@@ -35,6 +35,7 @@ namespace FrameWork.Utils
                     continue;
                 }
                 this._view.Add(path + gameObject.name,gameObject);
+                Debug.Log(path + gameObject.name,gameObject);
                 this.LoadAllObjectsToView(gameObject,path + gameObject.name + "/");
             }
         }

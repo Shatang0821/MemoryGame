@@ -1,6 +1,7 @@
 using UnityEngine;
 using FrameWork.Utils;
 using FrameWork.EventCenter;
+using UnityEngine.UI;
 
 public class GameUICtrl : UICtrl
 {
@@ -9,20 +10,31 @@ public class GameUICtrl : UICtrl
     private string _endButton = "EndButton";
     private string _startButton = "InPrepare/StartButton";
 
+    private string _player1CardContainer = "InPlay/Player1CardContainer";
+    private string _player2CardContainer = "InPlay/Player2CardContainer";
+
+    private Outline _player1OutLine;
+    private Outline _player2OutLine;
+    
     private Camera _mainCamera;
 
     public override void Awake()
     {
         base.Awake();
-        GameController.Instance.Init(View["CardContainer"]);
+        GameController.Instance.Init(View["CardContainer"],this);
         
         _mainCamera = Camera.main;
+
+        _player1OutLine = View[_player1CardContainer].GetComponent<Outline>();
+        _player2OutLine = View[_player2CardContainer].GetComponent<Outline>();
+        
         this.gameObject.SetActive(false);
         EventCenter.AddListener(EventKey.OnStartSelect, OnGameStartSelect);
     }
 
     private void OnEnable()
     {
+        GameController.Instance.InitializePlayers();
         AddButtonListener(_endButton, OnEndButton);
         AddButtonListener(_startButton, OnStartButton);
 
@@ -96,5 +108,22 @@ public class GameUICtrl : UICtrl
 
         //カードを配る
         EventCenter.TriggerEvent(EventKey.ShowCardsInBoard);
+    }
+
+    public void ChangeContainerOutLineColor(Player player)
+    {
+        switch (player.PlayerNum)
+        {
+            case 1:
+                _player1OutLine.effectColor = Color.red;
+                _player2OutLine.effectColor = Color.black;
+                break;
+            case 2:
+                _player1OutLine.effectColor = Color.black;
+                _player2OutLine.effectColor = Color.red;
+                break;
+            default:
+                break;
+        }
     }
 }

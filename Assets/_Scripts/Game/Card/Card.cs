@@ -117,6 +117,18 @@ public class Card
                     .OnComplete(() => { IsFaceUp = showFace; });
             });
     }
+    
+    /// <summary>
+    /// カードを移動する
+    /// </summary>
+    /// <param name="card"></param>
+    public void MoveCardTo(Transform parent,float yOffset)
+    {
+        CardPrefab.transform.SetParent(parent);
+        Vector3 pos = new Vector3(parent.transform.position.x + 90, parent.transform.position.y + 100 + yOffset, 0);
+        //Vector3 pos = new Vector3(parent.transform.position.x, parent.transform.position.y, 0);
+        _rectTransform.DOAnchorPos(pos,1f);
+    }
 
     /// <summary>
     /// カードが一致した処理
@@ -124,7 +136,5 @@ public class Card
     public void SetCardMatched()
     {
         IsMatched = true;
-        //仮処理
-        CardPrefab.SetActive(false);
     }
 }

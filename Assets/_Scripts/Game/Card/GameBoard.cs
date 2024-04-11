@@ -123,6 +123,7 @@ public class GameBoard
     
     private void PlaceCardOnBoard(Card card, int index, bool isFront)
     {
+        card.CardPrefab.transform.SetParent(_cardContainer.transform);
         // カードの位置を計算（盤面上での行と列）
         int row = index / CARDS_PER_ROW;
         int col = index % CARDS_PER_ROW;

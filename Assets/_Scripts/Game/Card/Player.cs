@@ -1,5 +1,6 @@
 ﻿using FrameWork.EventCenter;
 using Photon.Realtime;
+using UnityEngine;
 
 public class Player
 {
@@ -9,7 +10,8 @@ public class Player
     public int PlayerNum { get; set; }
 
     private int _myPoint;
-
+    
+    public GameObject CardContainer { get; set; }
     public int MyPoint
     {
         get { return _myPoint; }

@@ -72,7 +72,7 @@ public class GameUICtrl : UICtrl
         AddButtonListener(_startButton, OnStartButton);
         SetViewActive(_inPrepare, true);
                         
-        GameController.Instance.InitializePlayers();
+        GameController.Instance.InitializePlayers(View[_player1CardContainer],View[_player2CardContainer]);
         GameController.Instance.OnEnable();
     }
 

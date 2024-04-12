@@ -104,11 +104,6 @@ public class Deck
     {
         _randomCardsSelfId.Clear();
         _randomCardsSelfId.AddRange(shuffledSelfIds.ToList());
-        foreach (var VARIABLE in _randomCardsSelfId)
-        {
-            Logger.Log(VARIABLE.ToString());
-            Debug.Log("Unity");
-        }
         // 必要に応じて、_cardsリストの順番も更新するロジックをここに追加
     }
     

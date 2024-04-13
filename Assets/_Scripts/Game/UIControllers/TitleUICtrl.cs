@@ -26,7 +26,6 @@ public class TitleUICtrl : UICtrl
 
     private void OnEnable()
     {
-
         //ボタンにイベントを登録する
         AddButtonListener(_startButton, OnStartButton);
         AddButtonListener("Room/Start",OnLineStartGame);

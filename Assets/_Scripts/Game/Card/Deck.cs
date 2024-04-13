@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using FrameWork.EventCenter;
 using FrameWork.Utils;
+using UnityEditor;
 using UnityEngine;
 using Logger = FrameWork.Utils.Logger;
 
@@ -11,102 +12,108 @@ using Logger = FrameWork.Utils.Logger;
 /// </summary>
 public class Deck
 {
-    private List<Card> _cards;      //カードのSelfIdを-1にすればこのリストに自分が見つける
-    private List<int> _randomCardsSelfId;
-    private Dictionary<int, Card> _cardTable;
-    
-    public List<Card> Cards
-    {
-        get => _cards;
-    }
+    public List<Card> Cards { get; private set; } //カードのSelfIdを-1にすればこのリストに自分が見つける
+    public List<CardView> CardViews { get; private set; }
 
-    public List<int> RandomCards
-    {
-        get => _randomCardsSelfId;
-    }
+    public List<int> RandomCardsSelfIdList { get; private set; }
 
-    public Dictionary<int, Card> CardTable
-    {
-        get => _cardTable;
-    }
+    public Dictionary<int, Card> CardTable { get; private set; }
+    public Dictionary<int, CardView> CardViewTable { get; private set; }
+
+
     public Deck(GameObject cardContainer)
     {
         //カードリスト初期化
-        _cards = new List<Card>();
-        _cardTable = new Dictionary<int, Card>();
-        
+        Cards = new List<Card>();
+        CardTable = new Dictionary<int, Card>();
+
+        CardViews = new List<CardView>();
+        CardViewTable = new Dictionary<int, CardView>();
+
         // SelfIdのリストを初期化
-        _randomCardsSelfId = new List<int>();
-        //カード絵札ごとに生成していく
-        for (int i = 0; i < ResLoader.Instance.SpringSprites.Count; i++)
+        RandomCardsSelfIdList = new List<int>();
+
+        InitializeDeck(cardContainer);
+
+        ResLoader.Instance.ClearSprites();
+
+        EventCenter.AddListener<int[]>(EventKey.SetShuffledCard, SetShuffledDeck);
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="cardContainer"></param>
+    private void InitializeDeck(GameObject cardContainer)
+    {
+        foreach (CardImageKind kind in Enum.GetValues(typeof(CardImageKind)))
         {
-            var num = (i % 6) + 1;
-            var cardPrefab = GameObject.Instantiate(ResLoader.Instance.CardPrefab, cardContainer.transform);
-            var card = new Card(num,(int)CardImage.Spring, cardPrefab);
-            
-            _cardTable.Add(card.SelfId,card);
-            _cards.Add(card);
+            Debug.Log(kind);
+            InitializeCardKind(kind, cardContainer);
         }
-        for (int i = 0; i < ResLoader.Instance.SummerSprites.Count; i++)
-        {
-            var num = (i % 6) + 1;
-            var cardPrefab = GameObject.Instantiate(ResLoader.Instance.CardPrefab, cardContainer.transform);
-            var card = new Card(num,(int)CardImage.Summer , cardPrefab);
-            
-            _cardTable.Add(card.SelfId,card);
-            _cards.Add(card);
-        }
-        for (int i = 0; i < ResLoader.Instance.AutumnSprites.Count; i++)
-        {
-            var num = (i % 6) + 1;
-            var cardPrefab = GameObject.Instantiate(ResLoader.Instance.CardPrefab, cardContainer.transform);
-            var card = new Card(num,(int)CardImage.Autumn , cardPrefab);
-            
-            _cardTable.Add(card.SelfId,card);
-            _cards.Add(card);
-        }
-        for (int i = 0; i < ResLoader.Instance.WinterSprites.Count; i++)
-        {
-            var num = (i % 6) + 1;
-            var cardPrefab = GameObject.Instantiate(ResLoader.Instance.CardPrefab, cardContainer.transform);
-            var card = new Card(num,(int)CardImage.Winter , cardPrefab);
-            
-            _cardTable.Add(card.SelfId,card);
-            _cards.Add(card);
-        }
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="kind"></param>
+    /// <param name="cardContainer"></param>
+    private void InitializeCardKind(CardImageKind kind, GameObject cardContainer)
+    {
+        Debug.Log(ResLoader.Instance.GetSpriteCountByKind(kind));
         
-        EventCenter.AddListener<int[]>(EventKey.SetShuffledCard,SetShuffledDeck);
+        for (int i = 0; i < ResLoader.Instance.GetSpriteCountByKind(kind); i++)
+        {
+            int num = (i % 6) + 1;
+            var cardPrefab = GameObject.Instantiate(ResLoader.Instance.CardPrefab, cardContainer.transform);
+            var cardSelfId = num + (int)kind * 6;
+            var cardView = new CardView(cardPrefab, kind, i);
+            var card = new Card(num, cardSelfId);
+
+            card.OnFaceStateChange += cardView.ToggleCardFace;
+            card.OnCardMatched += cardView.MoveCardTo;
+
+            CardTable.Add(cardSelfId, card);
+            Cards.Add(card);
+
+            CardViewTable.Add(cardSelfId, cardView);
+            CardViews.Add(cardView);
+        }
     }
 
     ~Deck()
     {
         DebugLogger.Log("Deck デストラクタ");
-        EventCenter.RemoveListener<int[]>(EventKey.SetShuffledCard,SetShuffledDeck);
+        EventCenter.RemoveListener<int[]>(EventKey.SetShuffledCard, SetShuffledDeck);
     }
-    
+
     public void OnEnable()
     {
         DebugLogger.Log("Deck");
         Shuffle();
-
-    }
-
-    public void OnDisable()
-    {
-        _randomCardsSelfId.Clear();
     }
     
+    public void OnDisable()
+    {
+        //カードデータのリセット
+        foreach (var card in Cards)
+        {
+            card.Reset();
+        }
+        RandomCardsSelfIdList.Clear();
+    }
+
     /// <summary>
     /// 同期用メソッド、受け取ったカードIDを
     /// </summary>
     /// <param name="shuffledSelfIds"></param>
     public void SetShuffledDeck(int[] shuffledSelfIds)
     {
-        _randomCardsSelfId.Clear();
-        _randomCardsSelfId.AddRange(shuffledSelfIds.ToList());
+        RandomCardsSelfIdList.Clear();
+        RandomCardsSelfIdList.AddRange(shuffledSelfIds.ToList());
         // 必要に応じて、_cardsリストの順番も更新するロジックをここに追加
     }
-    
+
     /// <summary>
     /// カードをシャッフル
     /// </summary>
@@ -114,31 +121,26 @@ public class Deck
     {
         //
         System.Random rng = new System.Random();
-        int n = _cards.Count;
-        _randomCardsSelfId.Clear();
+        int n = Cards.Count;
+        RandomCardsSelfIdList.Clear();
 
         // シャッフル後のカードのSelfIdをリストに追加
-        foreach (var card in _cards)
+        foreach (var card in Cards)
         {
-            _randomCardsSelfId.Add(card.SelfId);
+            RandomCardsSelfIdList.Add(card.SelfId);
         }
-        
+
         while (n > 1)
         {
             n--;
             int k = rng.Next(n + 1);
             // カードをシャッフル
-            (_randomCardsSelfId[k], _randomCardsSelfId[n]) = (_randomCardsSelfId[n], _randomCardsSelfId[k]);
-        }
-
-        for (int i = 0; i < _randomCardsSelfId.Count; i++)
-        {
-            //DebugLogger.Log(_randomCardsSelfId[i] + "," + _cardTable[_randomCardsSelfId[i]].Id);
+            (RandomCardsSelfIdList[k], RandomCardsSelfIdList[n]) = (RandomCardsSelfIdList[n], RandomCardsSelfIdList[k]);
         }
 
         if (GameManager.Instance.IsOnlineMode)
         {
-            NetworkManager.Instance.SendShuffledCard(_randomCardsSelfId.ToArray());
+            NetworkManager.Instance.SendShuffledCard(RandomCardsSelfIdList.ToArray());
         }
     }
 }

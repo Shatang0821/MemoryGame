@@ -28,6 +28,7 @@ public class GameController : Singleton<GameController>
     public void Init(GameObject cardContainer)
     {
         _selectedCards = new List<Card>();
+        
         //Deckクラスの初期化
         _deck = new Deck(cardContainer);
 
@@ -124,7 +125,7 @@ public class GameController : Singleton<GameController>
         if (!_selectedCards.Contains(card) && _selectedCards.Count < 2)
         {
             //カードクリック処理メソッド
-            card.ToggleCardFace(true);
+            card.ToggleCardFace();
             //
             _selectedCards.Add(card);
         }
@@ -145,12 +146,13 @@ public class GameController : Singleton<GameController>
         if (_selectedCards[0].Id == _selectedCards[1].Id)
         {
             await UniTask.Delay(450);
-            _selectedCards[0].SetCardMatched();
-            _selectedCards[1].SetCardMatched();
+            _selectedCards[0].SetCardMatched(_currentPlayer.CardContainer.transform);
+            _selectedCards[1].SetCardMatched(_currentPlayer.CardContainer.transform);
             _matchedCardTotal += _selectedCards.Count;
             _currentPlayer.MyPoint += 2;
-            _selectedCards[0].MoveCardTo(_currentPlayer.CardContainer.transform,_currentPlayer.MyPoint* 5);
-            _selectedCards[1].MoveCardTo(_currentPlayer.CardContainer.transform,_currentPlayer.MyPoint * 5);
+            
+            //_selectedCards[0].MoveCardTo(_currentPlayer.CardContainer.transform,_currentPlayer.MyPoint* 5);
+            //_selectedCards[1].MoveCardTo(_currentPlayer.CardContainer.transform,_currentPlayer.MyPoint * 5);
             if (_matchedCardTotal == _cardTotal)
             {
                 JudgeWinner();
@@ -162,8 +164,8 @@ public class GameController : Singleton<GameController>
         else
         {
             await UniTask.Delay(500);
-            _selectedCards[0].ToggleCardFace(false);
-            _selectedCards[1].ToggleCardFace(false);
+            _selectedCards[0].ToggleCardFace();
+            _selectedCards[1].ToggleCardFace();
             SwitchTurn();
         }
 

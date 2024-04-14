@@ -11,6 +11,9 @@ public class GameController : Singleton<GameController>
     public Player Player1 { get; private set; }
     public Player Player2 { get; private set; }
     private Player _currentPlayer;
+    
+    //入力
+    private PlayerInput _playerInput;
 
     //カード関連
     private List<Card> _selectedCards; //選択したカード
@@ -37,6 +40,10 @@ public class GameController : Singleton<GameController>
         _gameBoard.Subscribe();
 
         _cardTotal = _deck.Cards.Count;
+
+        _playerInput = (PlayerInput)ScriptableObject.CreateInstance(typeof(PlayerInput));
+        
+        EventCenter.AddListener<Vector3>(EventKey.OnPress, SelectCard);
     }
 
     /// <summary>
@@ -46,14 +53,12 @@ public class GameController : Singleton<GameController>
     {
         if (PhotonNetwork.IsConnected)
         {
-            Debug.Log("OnLine");
             // ここでマスタークライアントかどうかに基づいて、Player1 と Player2 を初期化
             Player1 = new Player { IsMaster = true, IsMyTurn = true, PlayerNum = 1, CardContainer = p1CardContainer };
             Player2 = new Player { IsMaster = false, IsMyTurn = false, PlayerNum = 2, CardContainer = p2CardContainer };
         }
         else
         {
-            Debug.Log("OffLine");
             // ここでマスタークライアントかどうかに基づいて、Player1 と Player2 を初期化
             Player1 = new Player { IsMaster = true, IsMyTurn = true, PlayerNum = 1, CardContainer = p1CardContainer };
             Player2 = new Player { IsMaster = false, IsMyTurn = false, PlayerNum = 2, CardContainer = p2CardContainer };
@@ -69,6 +74,8 @@ public class GameController : Singleton<GameController>
         _deck?.OnEnable();
 
         WinnerNum = -1;
+        
+        
     }
 
     public void OnDisable()
@@ -86,24 +93,36 @@ public class GameController : Singleton<GameController>
     ~GameController()
     {
         _gameBoard.Unsubscribe();
+        EventCenter.RemoveListener<Vector3>(EventKey.OnPress, SelectCard);
     }
 
 
-    public async UniTask　SelectCard(Vector3 mouseWorldPos)
+    /// <summary>
+    /// カードを選択する
+    /// </summary>
+    /// <param name="mousePosition"></param>
+    public void　SelectCard(Vector3 mousePosition)
     {
-        var card = _gameBoard.SelecteCard(mouseWorldPos);
-        if (card == null)
+        // スクリーン座標をワールド座標に変換
+        if (Camera.main != null && GameManager.Instance.CurrentGamePlayState == GamePlayState.SelectCards)
         {
-            return;
-        }
+            Vector3 mouseWorldPos =
+                Camera.main.ScreenToWorldPoint(mousePosition + new Vector3(0, 0, Camera.main.nearClipPlane));
+            
+            var card = _gameBoard.SelecteCard(mouseWorldPos);
+            if (card == null)
+            {
+                return;
+            }
 
-        if (GameManager.Instance.IsOnlineMode)
-        {
-            NetworkManager.Instance.SendClickedCard(card.SelfId, _currentPlayer);
-        }
-        else
-        {
-            SyncSelectedCard(card.SelfId);
+            if (GameManager.Instance.IsOnlineMode)
+            {
+                NetworkManager.Instance.SendClickedCard(card.SelfId, _currentPlayer);
+            }
+            else
+            {
+                SyncSelectedCard(card.SelfId);
+            }
         }
     }
 
@@ -145,6 +164,7 @@ public class GameController : Singleton<GameController>
     {
         if (_selectedCards[0].Id == _selectedCards[1].Id)
         {
+            //カードを表にするアニメーションを待つ
             await UniTask.Delay(450);
             _selectedCards[0].SetCardMatched(_currentPlayer.CardContainer.transform);
             _selectedCards[1].SetCardMatched(_currentPlayer.CardContainer.transform);
@@ -155,6 +175,7 @@ public class GameController : Singleton<GameController>
             //_selectedCards[1].MoveCardTo(_currentPlayer.CardContainer.transform,_currentPlayer.MyPoint * 5);
             if (_matchedCardTotal == _cardTotal)
             {
+                await UniTask.Delay(1000);
                 JudgeWinner();
                 EventCenter.TriggerEvent(EventKey.OnSceneStateChange, SceneState.GameOver);
                 EventCenter.TriggerEvent(EventKey.OnGameStateChange, GamePlayState.End);
@@ -163,12 +184,15 @@ public class GameController : Singleton<GameController>
         }
         else
         {
-            await UniTask.Delay(500);
+            //カードを表にするアニメーションを待つ
+            await UniTask.Delay(450);
             _selectedCards[0].ToggleCardFace();
             _selectedCards[1].ToggleCardFace();
+            //カードを裏にするアニメーションを待つ
+            await UniTask.Delay(350);
             SwitchTurn();
         }
-
+        
         _selectedCards.Clear();
         EventCenter.TriggerEvent(EventKey.OnGameStateChange, GamePlayState.SelectCards);
     }
@@ -190,6 +214,9 @@ public class GameController : Singleton<GameController>
         EventCenter.TriggerEvent(EventKey.SwitchTurn, _currentPlayer);
     }
 
+    /// <summary>
+    /// 優勝判断
+    /// </summary>
     private void JudgeWinner()
     {
         if (Player1.MyPoint > Player2.MyPoint)

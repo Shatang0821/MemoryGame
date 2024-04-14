@@ -28,11 +28,6 @@ public class GameBoard
         _totalCards = _deck.Cards.Count;
     }
 
-    ~GameBoard()
-    {
-        DebugLogger.Log("GameBoard デストラクタ");
-    }
-
     /// <summary>
     /// イベントの登録
     /// </summary>

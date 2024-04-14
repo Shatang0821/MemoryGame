@@ -10,7 +10,9 @@ using Photon.Realtime;
 using Unity.VisualScripting;
 using UnityEngine.InputSystem.Switch;
 
-
+/// <summary>
+/// タイトルUIパネル
+/// </summary>
 public class TitleUICtrl : UICtrl
 {
     private const string _startButton = "StartButton";
@@ -41,29 +43,21 @@ public class TitleUICtrl : UICtrl
         RemoveButtonListener("Room/Start");
         RemoveButtonListener("Room/Leave");
         
-        SetMenuDisable();
-    }
-
-    
-
-    /// <summary>
-    /// ルームパネルとそのボタンを非表示にする
-    /// </summary>
-    private void SetMenuDisable()
-    {
-        View["Room"].SetActive(false);
-        View["Room/Start"].SetActive(false);
+        SetOnLineMenuDisable();
     }
 
     private void OnDestroy()
     {
         EventCenter.RemoveListener(EventKey.ShowStartButton,ShowStartButton);
     }
-
+    
+    /// <summary>
+    /// オンラインモードから退出
+    /// </summary>
     private void OnLeaveButton()
     {
-        NetworkManager.Instance.LeaveOnlinePlay();
-        SetMenuDisable();
+        EventCenter.TriggerEvent(EventKey.OnLeaveOnline);
+        SetOnLineMenuDisable();
     }
 
     /// <summary>
@@ -103,5 +97,14 @@ public class TitleUICtrl : UICtrl
         View["Room/Start"].SetActive(true);
     }
     
-    
+    /// <summary>
+    /// ルームパネルとそのボタンを非表示にする
+    /// </summary>
+    private void SetOnLineMenuDisable()
+    {
+        View["Room"].SetActive(false);
+        View["Room/Start"].SetActive(false);
+    }
+
+   
 }

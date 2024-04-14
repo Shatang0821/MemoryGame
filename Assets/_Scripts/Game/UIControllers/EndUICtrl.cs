@@ -49,11 +49,14 @@ public class EndUICtrl : UICtrl
 		}
 	}
 
+	/// <summary>
+	/// タイトルに戻る
+	/// </summary>
 	private void GotoTitle()
 	{
 		if (GameManager.Instance.IsOnlineMode)
 		{
-			NetworkManager.Instance.LeaveOnlinePlay();
+			EventCenter.TriggerEvent(EventKey.OnLeaveOnline);
 			EventCenter.TriggerEvent(EventKey.OnSceneStateChange, SceneState.Title);
 		}
 		else

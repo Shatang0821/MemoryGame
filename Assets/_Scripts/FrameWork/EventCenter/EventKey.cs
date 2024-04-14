@@ -23,6 +23,8 @@ namespace FrameWork.EventCenter
         
         SwitchTurn,             //ターンの切り替え
         OnChangePoint,          //ポイントUIの更新
+        
+        OnPress,                //クリックイベント
     }
     
     

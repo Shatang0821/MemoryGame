@@ -38,10 +38,9 @@ public class GameUICtrl : UICtrl
         _mainCamera = Camera.main;
 
         ComponentInitialize();
-
-        this.gameObject.SetActive(false);
-        
         EventSubscribe();
+        
+        this.gameObject.SetActive(false);
     }
 
     /// <summary>
@@ -87,7 +86,6 @@ public class GameUICtrl : UICtrl
         _player1PointText.text = 0.ToString();
         _player2PointText.text = 0.ToString();
         
-        
         GameController.Instance.OnDisable();
     }
 
@@ -96,18 +94,6 @@ public class GameUICtrl : UICtrl
         EventCenter.RemoveListener(EventKey.OnStartSelect, OnGameStartSelect);
         EventCenter.RemoveListener<Player>(EventKey.SwitchTurn, ChangeContainerOutLineColor);
         EventCenter.RemoveListener<int, int>(EventKey.OnChangePoint, ChangePointText);
-    }
-
-    private void Update()
-    {
-        //修正必要
-        if (Input.GetMouseButtonDown(0) && GameManager.Instance.CurrentGamePlayState == GamePlayState.SelectCards)
-        {
-            // スクリーン座標をワールド座標に変換
-            Vector3 mouseWorldPos =
-                _mainCamera.ScreenToWorldPoint(Input.mousePosition + new Vector3(0, 0, _mainCamera.nearClipPlane));
-            GameController.Instance.SelectCard(mouseWorldPos);
-        }
     }
 
     /// <summary>

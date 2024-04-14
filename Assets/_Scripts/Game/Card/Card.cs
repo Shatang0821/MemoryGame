@@ -37,6 +37,7 @@ public class Card
     {
         IsMatched = false;
         IsFaceUp = false;
+        OnFaceStateChange?.Invoke(IsFaceUp);
     }
     
     /// <summary>

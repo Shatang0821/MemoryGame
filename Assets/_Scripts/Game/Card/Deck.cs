@@ -48,7 +48,6 @@ public class Deck
     {
         foreach (CardImageKind kind in Enum.GetValues(typeof(CardImageKind)))
         {
-            Debug.Log(kind);
             InitializeCardKind(kind, cardContainer);
         }
     }
@@ -60,8 +59,6 @@ public class Deck
     /// <param name="cardContainer"></param>
     private void InitializeCardKind(CardImageKind kind, GameObject cardContainer)
     {
-        Debug.Log(ResLoader.Instance.GetSpriteCountByKind(kind));
-        
         for (int i = 0; i < ResLoader.Instance.GetSpriteCountByKind(kind); i++)
         {
             int num = (i % 6) + 1;
@@ -83,13 +80,11 @@ public class Deck
 
     ~Deck()
     {
-        DebugLogger.Log("Deck デストラクタ");
         EventCenter.RemoveListener<int[]>(EventKey.SetShuffledCard, SetShuffledDeck);
     }
 
     public void OnEnable()
     {
-        DebugLogger.Log("Deck");
         Shuffle();
     }
     

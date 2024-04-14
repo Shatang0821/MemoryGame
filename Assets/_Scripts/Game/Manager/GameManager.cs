@@ -103,19 +103,19 @@ public class GameManager : PersistentUnitySingleton<GameManager>
         switch (_currentGamePlayState)
         {
             case GamePlayState.Prepare:
-                Debug.Log("PrepareInManager");
+                //Debug.Log("PrepareInManager");
                 EventCenter.TriggerEvent(EventKey.OnGameStatePrepare);
                 break;
             case GamePlayState.SelectCards:
-                Debug.Log("SelectCardsInManager");
+                //Debug.Log("SelectCardsInManager");
                 EventCenter.TriggerEvent(EventKey.OnGameStateSelectCards);
                 break;
             case GamePlayState.CheckCards:
-                Debug.Log("CheckCardsInManager");
+                //Debug.Log("CheckCardsInManager");
                 EventCenter.TriggerEvent(EventKey.OnGameStateCheckCards);
                 break;
             case GamePlayState.End:
-                Debug.Log("EndInManager");
+                //Debug.Log("EndInManager");
                 EventCenter.TriggerEvent(EventKey.OnGameStateEnd);
                 break;
         }

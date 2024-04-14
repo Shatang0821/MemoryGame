@@ -19,7 +19,6 @@ public class ResLoader : UnitySingleton<ResLoader>
     {
         base.Awake();
         Init();
-        Debug.Log("ResLoader");
     }
 
     /// <summary>
@@ -56,7 +55,6 @@ public class ResLoader : UnitySingleton<ResLoader>
         
         
         BackSprite = ResManager.Instance.GetAssetCache<Sprite>("Sprite/Back");
-        Debug.Log(SpriteCount);
     }
 
     /// <summary>

@@ -1,4 +1,5 @@
 using FrameWork.EventCenter;
+using FrameWork.Utils;
 using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine;
@@ -25,13 +26,16 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         DontDestroyOnLoad(gameObject);
 
         _photonView = GetComponent<PhotonView>();
+        
+        
         EventCenter.AddListener(EventKey.OnStartOnLine, StartOnlinePlay);
-        Debug.Log(Application.persistentDataPath);
+        EventCenter.AddListener(EventKey.OnLeaveOnline,LeaveOnlinePlay);
     }
 
     private void OnDestroy()
     {
         EventCenter.RemoveListener(EventKey.OnStartOnLine, StartOnlinePlay);
+        EventCenter.RemoveListener(EventKey.OnLeaveOnline,LeaveOnlinePlay);
     }
 
     private void StartOnlinePlay()
@@ -42,7 +46,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     /// <summary>
     /// 接続を切る
     /// </summary>
-    public void LeaveOnlinePlay()
+    private void LeaveOnlinePlay()
     {
         PhotonNetwork.LeaveRoom();
         PhotonNetwork.Disconnect();
@@ -55,7 +59,6 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     public override void OnJoinedRoom()
     {
-        Debug.Log("JoinRoom");
         GameManager.Instance.IsOnlineMode = true;
         // 部屋に参加した際の追加のロジックをここに記述
         CheckPlayersInRoom();
@@ -63,25 +66,20 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     public override void OnJoinRandomFailed(short returnCode, string message)
     {
-        Debug.Log("Create room");
         PhotonNetwork.CreateRoom(null, new RoomOptions() { MaxPlayers = 2 }, TypedLobby.Default);
     }
 
     public override void OnPlayerEnteredRoom(Photon.Realtime.Player newPlayer)
     {
-        Debug.LogFormat("新しいプレイヤーが参加しました: {0}", newPlayer.NickName);
-
         // プレイヤーが部屋に入った際の追加のロジックをここに記述
         CheckPlayersInRoom();
     }
 
     void CheckPlayersInRoom()
     {
-        Debug.Log(PhotonNetwork.CurrentRoom.PlayerCount);
         // 部屋のプレイヤー数が2人に達した場合の処理
         if (PhotonNetwork.CurrentRoom.PlayerCount == 2)
         {
-            Debug.Log("部屋のプレイヤー数が2人になりました。ゲームを開始します。");
             EventCenter.TriggerEvent(EventKey.ShowStartButton);
         }
     }
@@ -89,14 +87,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public override void OnLeftRoom()
     {
         // 部屋から正常に出た場合に呼び出される
-        Debug.Log("部屋から退出しました。");
         GameManager.Instance.IsOnlineMode = false;
-    }
-
-    public override void OnDisconnected(DisconnectCause cause)
-    {
-        // ネットワークから切断された場合に呼び出される
-        Debug.Log("ネットワークから切断されました。原因：" + cause);
     }
 
 
@@ -104,7 +95,6 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     {
         if (PhotonNetwork.IsMasterClient && PhotonNetwork.CurrentRoom.PlayerCount == 2)
         {
-            Debug.Log("OnstartButton");
             _photonView.RPC("EnterGameScene", RpcTarget.All);
         }
     }

@@ -28,7 +28,6 @@ public class GameApp : UnitySingleton<GameApp>
     {
         ManagerFactory.Instance.CreateManager<ResLoader>();
         ManagerFactory.Instance.CreateManager<GameManager>();
-        DebugLogger.Log("マネージャー初期化終了");
     }
     
     /// <summary>
@@ -39,7 +38,6 @@ public class GameApp : UnitySingleton<GameApp>
         UIManager.Instance.ShowUI("TitleUI");
         UIManager.Instance.ShowUI("GameUI");
         UIManager.Instance.ShowUI("EndUI");
-        DebugLogger.Log("UI初期化終了");
     }
 
     

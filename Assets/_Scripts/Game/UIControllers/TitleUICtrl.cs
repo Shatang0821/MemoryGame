@@ -8,6 +8,7 @@ using FrameWork.EventCenter;
 using Photon.Pun;
 using Photon.Realtime;
 using Unity.VisualScripting;
+using UnityEditor;
 using UnityEngine.InputSystem.Switch;
 
 /// <summary>
@@ -17,12 +18,12 @@ public class TitleUICtrl : UICtrl
 {
     private const string _startButton = "StartButton";
     private const string _startOnlineButton = "OnLineStart";
-
+    private const string _exitButton = "Exit";
 
     public override void Awake()
     {
         base.Awake();
-        EventCenter.AddListener(EventKey.ShowStartButton,ShowStartButton);
+        EventCenter.AddListener(EventKey.ShowStartButton, ShowStartButton);
         this.gameObject.SetActive(false);
     }
 
@@ -30,9 +31,11 @@ public class TitleUICtrl : UICtrl
     {
         //ボタンにイベントを登録する
         AddButtonListener(_startButton, OnStartButton);
-        AddButtonListener("Room/Start",OnLineStartGame);
-        AddButtonListener(_startOnlineButton,OnStartOnlineButton);
-        AddButtonListener("Room/Leave",OnLeaveButton);
+        AddButtonListener("Room/Start", OnLineStartGame);
+        AddButtonListener(_startOnlineButton, OnStartOnlineButton);
+        AddButtonListener("Room/Leave", OnLeaveButton);
+        
+        AddButtonListener(_exitButton,OnExit);
     }
 
     private void OnDisable()
@@ -42,15 +45,15 @@ public class TitleUICtrl : UICtrl
         RemoveButtonListener(_startOnlineButton);
         RemoveButtonListener("Room/Start");
         RemoveButtonListener("Room/Leave");
-        
+        RemoveButtonListener(_exitButton);
         SetOnLineMenuDisable();
     }
 
     private void OnDestroy()
     {
-        EventCenter.RemoveListener(EventKey.ShowStartButton,ShowStartButton);
+        EventCenter.RemoveListener(EventKey.ShowStartButton, ShowStartButton);
     }
-    
+
     /// <summary>
     /// オンラインモードから退出
     /// </summary>
@@ -77,7 +80,7 @@ public class TitleUICtrl : UICtrl
     private void OnLineStartGame()
     {
         //ゲーム状態を切り替わるだけ
-        NetworkManager.Instance.OnStartButton(); 
+        NetworkManager.Instance.OnStartButton();
     }
 
     /// <summary>
@@ -88,7 +91,7 @@ public class TitleUICtrl : UICtrl
         EventCenter.TriggerEvent(EventKey.OnStartOnLine);
         View["Room"].SetActive(true);
     }
-    
+
     /// <summary>
     /// マルチプレイパネル内のスタートボタンの表示
     /// </summary>
@@ -96,7 +99,7 @@ public class TitleUICtrl : UICtrl
     {
         View["Room/Start"].SetActive(true);
     }
-    
+
     /// <summary>
     /// ルームパネルとそのボタンを非表示にする
     /// </summary>
@@ -106,5 +109,12 @@ public class TitleUICtrl : UICtrl
         View["Room/Start"].SetActive(false);
     }
 
-   
+    private void OnExit()
+    {
+#if UNITY_EDITOR
+        EditorApplication.isPlaying = false;
+#else
+        Application.Quit();
+#endif
+    }
 }

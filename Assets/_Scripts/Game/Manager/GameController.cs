@@ -170,9 +170,7 @@ public class GameController : Singleton<GameController>
             _selectedCards[1].SetCardMatched(_currentPlayer.CardContainer.transform);
             _matchedCardTotal += _selectedCards.Count;
             _currentPlayer.MyPoint += 2;
-            
-            //_selectedCards[0].MoveCardTo(_currentPlayer.CardContainer.transform,_currentPlayer.MyPoint* 5);
-            //_selectedCards[1].MoveCardTo(_currentPlayer.CardContainer.transform,_currentPlayer.MyPoint * 5);
+
             if (_matchedCardTotal == _cardTotal)
             {
                 await UniTask.Delay(1000);

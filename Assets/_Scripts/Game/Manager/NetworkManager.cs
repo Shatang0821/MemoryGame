@@ -75,15 +75,22 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         CheckPlayersInRoom();
     }
 
+    /// <summary>
+    /// プレイヤー数チェック
+    /// </summary>
     void CheckPlayersInRoom()
     {
         // 部屋のプレイヤー数が2人に達した場合の処理
         if (PhotonNetwork.CurrentRoom.PlayerCount == 2)
         {
+            //オンライン用のスタートボタンの表示
             EventCenter.TriggerEvent(EventKey.ShowStartButton);
         }
     }
 
+    /// <summary>
+    /// 部屋から離れる処理
+    /// </summary>
     public override void OnLeftRoom()
     {
         // 部屋から正常に出た場合に呼び出される
@@ -91,6 +98,9 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     }
 
 
+    /// <summary>
+    /// オンラインスタートボタンの処理
+    /// </summary>
     public void OnStartButton()
     {
         if (PhotonNetwork.IsMasterClient && PhotonNetwork.CurrentRoom.PlayerCount == 2)
@@ -99,6 +109,9 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         }
     }
 
+    /// <summary>
+    /// ゲームステータス変更
+    /// </summary>
     [PunRPC]
     private void EnterGameScene()
     {
@@ -106,8 +119,10 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         EventCenter.TriggerEvent(EventKey.OnSceneStateChange, SceneState.Gameplay);
         EventCenter.TriggerEvent(EventKey.OnGameStateChange, GamePlayState.Prepare);
     }
-
-
+    
+    /// <summary>
+    /// 対戦画面に遷移する
+    /// </summary>
     public void SendStart()
     {
         if (PhotonNetwork.IsMasterClient && PhotonNetwork.CurrentRoom.PlayerCount == 2)
@@ -115,13 +130,16 @@ public class NetworkManager : MonoBehaviourPunCallbacks
             _photonView.RPC("EnterSelectScene", RpcTarget.All);
         }
     }
-
+    
     [PunRPC]
     private void EnterSelectScene()
     {
         EventCenter.TriggerEvent(EventKey.OnStartSelect);
     }
-
+    
+    /// <summary>
+    /// リスタート処理を同期する
+    /// </summary>
     public void SendRestart()
     {
         if (PhotonNetwork.IsMasterClient && PhotonNetwork.CurrentRoom.PlayerCount == 2)
@@ -136,8 +154,12 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         EventCenter.TriggerEvent(EventKey.OnSceneStateChange, SceneState.Gameplay);
         EventCenter.TriggerEvent(EventKey.OnGameStateChange, GamePlayState.Prepare);
     }
-
-
+    
+    /// <summary>
+    /// カードをシャッフルする度同期する
+    /// 盤面のデータの同期
+    /// </summary>
+    /// <param name="shuffledCards"></param>
     public void SendShuffledCard(int[] shuffledCards)
     {
         if (PhotonNetwork.IsMasterClient)
@@ -153,7 +175,11 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         EventCenter.TriggerEvent(EventKey.SetShuffledCard, shuffledSelfIds);
     }
 
-
+    /// <summary>
+    /// クリックしたカードを同期する
+    /// </summary>
+    /// <param name="cardSelfId">カードのid</param>
+    /// <param name="player">ターンのチェック</param>
     public void SendClickedCard(int cardSelfId, Player player)
     {
         if (PhotonNetwork.IsMasterClient && player.IsMaster)
@@ -163,10 +189,6 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         else if (!PhotonNetwork.IsMasterClient && !player.IsMaster)
         {
             _photonView.RPC("ShareClickedCard", RpcTarget.All, cardSelfId);
-        }
-        else
-        {
-            return;
         }
     }
 

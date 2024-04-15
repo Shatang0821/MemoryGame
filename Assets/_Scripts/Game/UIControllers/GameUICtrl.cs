@@ -104,7 +104,10 @@ public class GameUICtrl : UICtrl
         EventCenter.TriggerEvent(EventKey.OnSceneStateChange, SceneState.GameOver);
         EventCenter.TriggerEvent(EventKey.OnGameStateChange, GamePlayState.End);
     }
-
+    
+    /// <summary>
+    /// 準備画面から対戦画面に入る処理
+    /// </summary>
     private void OnStartButton()
     {
         if (GameManager.Instance.IsOnlineMode)

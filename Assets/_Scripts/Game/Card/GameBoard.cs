@@ -97,7 +97,14 @@ public class GameBoard
     }
 
     #endregion
-
+    
+    /// <summary>
+    /// カードを配る
+    /// </summary>
+    /// <param name="card">カードデータ</param>
+    /// <param name="cardView">カードビュー</param>
+    /// <param name="index">位置計算するための添え字</param>
+    /// <param name="isFront">カードの表裏フラグ</param>
     private void PlaceCardOnBoard(Card card, CardView cardView, int index, bool isFront)
     {
         cardView.CardPrefab.transform.SetParent(_cardContainer.transform);

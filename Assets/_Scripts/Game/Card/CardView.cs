@@ -12,10 +12,10 @@ public enum CardImageKind
 
 public class CardView
 {
-    public GameObject CardPrefab { get; private set; }
-    public Image Image { get; private set; }
-    public Sprite FrontSprite { get; private set; }
-    public Sprite BackSprite { get; private set; }
+    public GameObject CardPrefab { get; private set; }  //カードオブジェクト
+    public Image Image { get; private set; }            //イメージコンポーネント
+    public Sprite FrontSprite { get; private set; }     //表面画像
+    public Sprite BackSprite { get; private set; }      //裏面画像
 
     private RectTransform _rectTransform;
     

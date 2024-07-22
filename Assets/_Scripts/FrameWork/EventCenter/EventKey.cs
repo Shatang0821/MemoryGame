@@ -9,34 +9,21 @@ namespace FrameWork.EventCenter
         OnSceneStateChange,     //シーンの切り替え
         OnGameStateChange,      //ゲーム状態切り替え
         
-        OnGameStatePrepare,
-        OnGameStateSelectCards,
-        OnGameStateCheckCards,
-        OnGameStateEnd,
-        OnStartOnLine,
-        OnLeaveOnline,
+        OnGameStatePrepare,     //ゲームの準備画面
+        OnGameStateSelectCards, //カード選択画面
+        OnGameStateCheckCards,  //カードチェック画面
+        OnGameStateEnd,         //ゲーム終了画面
+        OnStartOnLine,          //オンライン対戦開始
+        OnLeaveOnline,          //オンライン対戦終了
         
         ShowCardsInBoard,       //対戦用のかードを配る
-        ShowStartButton,        
+        ShowStartButton,        //スタートボタンの表示
         
-        SetShuffledCard,
+        SetShuffledCard,        //シャッフルされたカードを同期する
         
         SwitchTurn,             //ターンの切り替え
         OnChangePoint,          //ポイントUIの更新
         
         OnPress,                //クリックイベント
     }
-    
-    
-
-    // public static class StateKey
-    // {
-    //     public static readonly EventKey OnSceneStateChange = new("OnSceneStateChange");
-    //     public static readonly EventKey OnGameStateChange = new("OnGameStateChange");
-    //
-    //     public static readonly EventKey OnGameStatePrepare = new("OnGameStatePrepare");
-    //     public static readonly EventKey OnGameStateSelectCards = new("OnGameStateSelectCards");
-    //     public static readonly EventKey OnGameStateCheckCards = new("OnGameStateCheckCards");
-    //     public static readonly EventKey OnGameStateEnd = new("OnGameStateEnd");
-    // }
 }

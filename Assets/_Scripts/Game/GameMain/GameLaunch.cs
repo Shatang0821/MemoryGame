@@ -14,16 +14,6 @@ public class GameLaunch : PersistentUnitySingleton<GameLaunch>
         this.InitFramework();
         this.InitGameLogic();
     }
-
-    /// <summary>
-    /// アップデートチェック
-    /// </summary>
-    private void CheckHotUpdate()
-    {
-        //データ取得
-        //ダウンロード情報
-        //ローカルにダウンロード
-    }
     
     /// <summary>
     /// フレームワークを初期化

@@ -12,10 +12,10 @@ using Logger = FrameWork.Utils.Logger;
 /// </summary>
 public class Deck
 {
-    public List<Card> Cards { get; private set; } //カードのSelfIdを-1にすればこのリストに自分が見つける
-    public List<CardView> CardViews { get; private set; }
+    public List<Card> Cards { get; private set; }                   //データ
+    public List<CardView> CardViews { get; private set; }           //ビュー
 
-    public List<int> RandomCardsSelfIdList { get; private set; }
+    public List<int> RandomCardsSelfIdList { get; private set; }    //シャッフルしたカードのSelfIdリスト
 
     public Dictionary<int, Card> CardTable { get; private set; }
     public Dictionary<int, CardView> CardViewTable { get; private set; }
@@ -41,7 +41,7 @@ public class Deck
     }
 
     /// <summary>
-    /// 
+    /// 初期化
     /// </summary>
     /// <param name="cardContainer"></param>
     private void InitializeDeck(GameObject cardContainer)
@@ -53,7 +53,7 @@ public class Deck
     }
 
     /// <summary>
-    /// 
+    /// カードのデータ初期化
     /// </summary>
     /// <param name="kind"></param>
     /// <param name="cardContainer"></param>
@@ -114,7 +114,6 @@ public class Deck
     /// </summary>
     public void Shuffle()
     {
-        //
         System.Random rng = new System.Random();
         int n = Cards.Count;
         RandomCardsSelfIdList.Clear();
